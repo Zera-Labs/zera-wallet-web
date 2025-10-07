@@ -1,0 +1,331 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* Self-hosted PP Neue Machina */
+@font-face {
+  font-family: 'PP Neue Machina';
+  src: url('/PPNeueMachina-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'PP Neue Machina';
+  src: url('/PPNeueMachina-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'PP Neue Machina';
+  src: url('/PPNeueMachina-Ultrabold.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: optional;
+}
+
+/* Self-hosted IBM Plex Mono (normal) */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+}
+
+/* Self-hosted IBM Plex Mono (italic) */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/IBMPlexMono-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: optional;
+}
+
+body {
+  @apply m-0;
+  font-family:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family:
+    'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.141 0.005 285.823);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.141 0.005 285.823);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.141 0.005 285.823);
+  --primary: oklch(0.21 0.006 285.885);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.21 0.006 285.885);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: #bae9cb;
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.871 0.006 286.286);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: var(--brand-dark-blue);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--brand-green);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: var(--brand-light-dark-green);
+  --sidebar-accent-foreground: var(--text-primary);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--brand-light-green);
+
+  /* Brand Colors */
+  --brand-green-50: #eefaf2;
+  --brand-green-100: #dcf4e5;
+  --brand-green-200: #bae9cb;
+  --brand-green-300: #97dfb1;
+  --brand-green-400: #75d497;
+  --brand-green-500: #52c97d;
+  --brand-green-600: #42a164;
+  --brand-green-700: #31794b;
+  --brand-green-800: #215032;
+  --brand-green-900: #102819;
+  --brand-green-950: #08140c;
+  --brand-green: var(--brand-green-500);
+  --brand-light-dark-green: #DCF4E514;
+  --brand-dark-green: var(--brand-green-900);
+  --brand-light-green: var(--brand-green-300);
+  --brand-blue: #5263C9;
+  --brand-dark-blue: #080A14;
+  --brand-light-blue: #8192FF;
+  --brand-off-white: #EEFAF2;
+  --text-primary: #EEFAF2;
+  --text-secondary: #08140C;
+  --text-tertiary: #D9D9D9;
+  --text-brand-green: var(--brand-green-500);
+  --text-brand-beige: #CE9178;
+  --text-brand-lemon: #DFD597
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Fonts (Tailwind v4 tokens create font-* utilities) */
+  --font-display: 'PP Neue Machina', 'IBM Plex Mono', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+@layer utilities {
+  .font-pp-machina {
+    /* Fallback if PP Neue Machina is not available locally */
+    font-family: 'PP Neue Machina', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+    font-weight: 800;
+    font-size-adjust: from-font;
+  }
+  .font-pp-regular {
+    font-family: 'PP Neue Machina', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+    font-weight: 400;
+    font-size-adjust: from-font;
+  }
+  .font-pp-light {
+    font-family: 'PP Neue Machina', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+    font-weight: 300;
+    font-size-adjust: from-font;
+  }
+  .font-body {
+    font-size-adjust: from-font;
+  }
+  /* Thin brand scrollbar utility */
+  .scrollbar-thin-brand {
+    scrollbar-width: thin; /* Firefox */
+    /* Fallback */
+    scrollbar-color: rgba(82, 201, 125, 0.3) transparent;
+    /* Modern */
+    scrollbar-color: color-mix(in srgb, var(--brand-green) 30%, transparent) transparent;
+  }
+  .scrollbar-thin-brand::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin-brand::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin-brand::-webkit-scrollbar-thumb {
+    /* Fallback */
+    background-color: rgba(82, 201, 125, 0.3);
+    /* Modern */
+    background-color: color-mix(in srgb, var(--brand-green) 70%, transparent);
+    border-radius: 8px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+  @media (min-width: 768px) {
+    body {
+      background-size: 100% auto;
+    }
+  }
+  h1, h2, h3, h4, h5, h6,
+  .title, .subtitle {
+    @apply font-display;
+  }
+}
+
+.dark {
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
