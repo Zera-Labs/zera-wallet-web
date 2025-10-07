@@ -6,7 +6,6 @@ import {
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
-import Header from '../components/Header'
 import WalletLayout from '../components/WalletLayout'
 
 import TanStackQueryDevtools from '../integrations/tanstack-query/devtools'
@@ -52,7 +51,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <WalletLayout>
-          <Header />
           {children}
         </WalletLayout>
         <TanStackDevtools

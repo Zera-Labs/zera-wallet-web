@@ -2,8 +2,6 @@
 
 @import 'tw-animate-css';
 
-@custom-variant dark (&:is(.dark *));
-
 /* Self-hosted PP Neue Machina */
 @font-face {
   font-family: 'PP Neue Machina';
@@ -144,8 +142,8 @@ code {
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
+  --background: #111;
+  --foreground: var(--brand-green-50);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
@@ -298,6 +296,7 @@ code {
   }
   body {
     @apply bg-background text-foreground font-body;
+    background-color: #111;
   }
   @media (min-width: 768px) {
     body {
@@ -307,25 +306,5 @@ code {
   h1, h2, h3, h4, h5, h6,
   .title, .subtitle {
     @apply font-display;
-  }
-}
-
-.dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
   }
 }
