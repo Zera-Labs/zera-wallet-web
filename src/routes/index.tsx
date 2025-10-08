@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAssets } from '@/hooks/useAssets'
 import { Card, CardHeader, CardTitle, CardContent, CardAction } from '@/components/ui/card'
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { PiggyBank, Banknote, ArrowLeftRight, Circle } from 'lucide-react'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import AssetRow from '@/components/AssetRow'
+import TransfersModal from '@/components/TransfersModal'
 
 export const Route = createFileRoute('/')({
   component: App,
@@ -14,6 +16,7 @@ export const Route = createFileRoute('/')({
 function App() {
   const navigate = useNavigate()
   const { data: assets = [], isLoading } = useAssets()
+  const [isTransferOpen, setIsTransferOpen] = React.useState(false)
 
   return (
     <div className="min-h-screen">
@@ -50,7 +53,7 @@ function App() {
                   <span className="text-xs text-[var(--text-tertiary)]">Withdraw</span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                  <Button variant="icon" size="icon-44" aria-label="Transfer"><ArrowLeftRight /></Button>
+                  <Button variant="icon" size="icon-44" aria-label="Transfer" onClick={() => setIsTransferOpen(true)}><ArrowLeftRight /></Button>
                   <span className="text-xs text-[var(--text-tertiary)]">Transfer</span>
                 </div>
                   </div>
@@ -99,6 +102,7 @@ function App() {
           </Table>
         </div>
       </section>
+      <TransfersModal open={isTransferOpen} onOpenChange={setIsTransferOpen} />
     </div>
   )
 }

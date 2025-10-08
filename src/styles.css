@@ -201,7 +201,60 @@ code {
   --text-tertiary: #D9D9D9;
   --text-brand-green: var(--brand-green-500);
   --text-brand-beige: #CE9178;
-  --text-brand-lemon: #DFD597
+  --text-brand-lemon: #DFD597;
+
+  /* Extended palette from DS (exclude remapping primary green) */
+  /* violet-blue */
+  --vb-50: #eef0fa;
+  --vb-100: #dcdff4;
+  --vb-200: #bac1e9;
+  --vb-300: #97a1df;
+  --vb-400: #7583d4;
+  --vb-500: #5263c9;
+  --vb-600: #4250a1;
+  --vb-700: #313b79;
+  --vb-800: #212750;
+  --vb-900: #101328;
+  --vb-950: #080a14;
+
+  /* complementary pink */
+  --cpink-50: #faeef6;
+  --cpink-100: #f4dceb;
+  --cpink-200: #e9bad8;
+  --cpink-300: #df97c5;
+  --cpink-400: #d475b2;
+  --cpink-500: #c9529e;
+  --cpink-600: #a1427f;
+  --cpink-700: #79315f;
+  --cpink-800: #50213f;
+  --cpink-900: #28101f;
+  --cpink-950: #140810;
+
+  /* complementary orange */
+  --corange-50: #faf8ee;
+  --corange-100: #f4f1dc;
+  --corange-200: #e9e3ba;
+  --corange-300: #dfd597;
+  --corange-400: #d4c775;
+  --corange-500: #c9b852;
+  --corange-600: #a19342;
+  --corange-700: #796f31;
+  --corange-800: #504921;
+  --corange-900: #282510;
+  --corange-950: #141208;
+
+  /* subdued */
+  --subdued-50: #ebf3ef;
+  --subdued-100: #d6e7de;
+  --subdued-200: #adcebd;
+  --subdued-300: #85b69c;
+  --subdued-400: #5c9d7b;
+  --subdued-500: #33855a;
+  --subdued-600: #296a48;
+  --subdued-700: #1f5036;
+  --subdued-800: #143524;
+  --subdued-900: #0a1b12;
+  --subdued-950: #050d09;
 }
 
 @theme inline {
@@ -241,6 +294,10 @@ code {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  /* Additional semantic aliases */
+  --color-blue: var(--vb-500);
+  --color-blue-foreground: oklch(0.985 0 0);
+  --color-error: #ec5b6f; /* used for danger outlines */
 
   /* Fonts (Tailwind v4 tokens create font-* utilities) */
   --font-display: 'PP Neue Machina', 'IBM Plex Mono', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
