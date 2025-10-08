@@ -109,7 +109,6 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
           </div>
         </SidebarContent>
       </Sidebar>
-      <SidebarRail />
       <SidebarInset>
         {children}
       </SidebarInset>

@@ -1,4 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { portfolioService } from '@/lib/portfolio.service'
+import { mockPrivyUser } from '@/data/privy.mock'
 
 type Asset = {
   id: string
@@ -9,46 +11,29 @@ type Asset = {
   amount: number
   value: number
   pnl: number
+  avgCostUsd?: number
 }
-
-// Simple in-memory dummy data so we can iterate on the UI
-const assets: Asset[] = [
-  {
-    id: 'zera',
-    name: 'ZERA',
-    symbol: 'ZERA',
-    chain: 'SOL',
-    price: 0.01802379554,
-    amount: 783760,
-    value: 14126.23,
-    pnl: 318.58,
-  },
-  {
-    id: 'eth',
-    name: 'Ethereum',
-    symbol: 'ETH',
-    chain: 'ETH',
-    price: 129.01,
-    amount: 129.01,
-    value: 576640.32,
-    pnl: 4478.31,
-  },
-  {
-    id: 'sol',
-    name: 'Solana',
-    symbol: 'SOL',
-    chain: 'SOL',
-    price: 313.67,
-    amount: 313.67,
-    value: 354938.18,
-    pnl: 71213.89,
-  },
-]
 
 export const Route = createFileRoute('/api/assets')({
   server: {
     handlers: {
-      GET: () => Response.json(assets),
+      GET: async () => {
+        const owner = mockPrivyUser.linkedAccounts.find((a: any) => a.type === 'wallet' && a.chainType === 'solana')?.address
+        if (!owner) return Response.json([])
+        const holdings = await portfolioService.listHoldings(owner)
+        const rows: Asset[] = holdings.map((h) => ({
+          id: h.symbol.toLowerCase(),
+          name: h.name,
+          symbol: h.symbol,
+          chain: 'SOL',
+          price: h.priceUsd,
+          amount: h.amount,
+          value: h.valueUsd,
+          pnl: h.unrealizedPnlUsd ?? 0,
+          avgCostUsd: h.avgCostUsd,
+        }))
+        return Response.json(rows)
+      },
     },
   },
 })

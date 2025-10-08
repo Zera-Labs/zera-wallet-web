@@ -19,6 +19,9 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+          icon:
+            // 44x44 circular icon-only button, subtle background and border; bump default Lucide icon size to 24px
+            "size-[44px] rounded-full border border-input/40 bg-input/20 hover:bg-input/30 [&_svg:not([class*='size-'])]:size-6",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -27,6 +30,7 @@ const buttonVariants = cva(
         icon: "size-9",
         "icon-sm": "size-8",
         "icon-lg": "size-10",
+          "icon-44": "size-[44px] p-0",
       },
     },
     defaultVariants: {

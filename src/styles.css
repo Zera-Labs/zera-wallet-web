@@ -167,14 +167,14 @@ code {
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: var(--brand-dark-blue);
+  --sidebar: #050505;
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--brand-green);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: var(--brand-light-dark-green);
   --sidebar-accent-foreground: var(--text-primary);
   --sidebar-border: var(--border);
-  --sidebar-ring: var(--brand-light-green);
+  --sidebar-ring: #000;
 
   /* Brand Colors */
   --brand-green-50: #eefaf2;

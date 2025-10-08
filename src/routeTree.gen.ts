@@ -11,16 +11,19 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UiDemoRouteImport } from './routes/ui-demo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as TokensTokenIdRouteImport } from './routes/tokens.$tokenId'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as ApiAssetsRouteImport } from './routes/api.assets'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
 import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
+import { Route as ApiTokenTokenIdRouteImport } from './routes/api.token.$tokenId'
 import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as ApiAssetsAssetIdTransactionsRouteImport } from './routes/api.assets.$assetId.transactions'
 
 const UiDemoRoute = UiDemoRouteImport.update({
   id: '/ui-demo',
@@ -30,6 +33,11 @@ const UiDemoRoute = UiDemoRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TokensTokenIdRoute = TokensTokenIdRouteImport.update({
+  id: '/tokens/$tokenId',
+  path: '/tokens/$tokenId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -62,6 +70,11 @@ const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
   path: '/demo/api/names',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTokenTokenIdRoute = ApiTokenTokenIdRouteImport.update({
+  id: '/api/token/$tokenId',
+  path: '/api/token/$tokenId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
   id: '/demo/start/ssr/',
   path: '/demo/start/ssr/',
@@ -82,16 +95,25 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
   path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssetsAssetIdTransactionsRoute =
+  ApiAssetsAssetIdTransactionsRouteImport.update({
+    id: '/$assetId/transactions',
+    path: '/$assetId/transactions',
+    getParentRoute: () => ApiAssetsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ui-demo': typeof UiDemoRoute
-  '/api/assets': typeof ApiAssetsRoute
+  '/api/assets': typeof ApiAssetsRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/tokens/$tokenId': typeof TokensTokenIdRoute
+  '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -100,12 +122,15 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ui-demo': typeof UiDemoRoute
-  '/api/assets': typeof ApiAssetsRoute
+  '/api/assets': typeof ApiAssetsRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/tokens/$tokenId': typeof TokensTokenIdRoute
+  '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -115,12 +140,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ui-demo': typeof UiDemoRoute
-  '/api/assets': typeof ApiAssetsRoute
+  '/api/assets': typeof ApiAssetsRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/tokens/$tokenId': typeof TokensTokenIdRoute
+  '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
+  '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -133,10 +161,13 @@ export interface FileRouteTypes {
     | '/ui-demo'
     | '/api/assets'
     | '/demo/tanstack-query'
+    | '/tokens/$tokenId'
+    | '/api/token/$tokenId'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/assets/$assetId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -147,10 +178,13 @@ export interface FileRouteTypes {
     | '/ui-demo'
     | '/api/assets'
     | '/demo/tanstack-query'
+    | '/tokens/$tokenId'
+    | '/api/token/$tokenId'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/assets/$assetId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -161,10 +195,13 @@ export interface FileRouteTypes {
     | '/ui-demo'
     | '/api/assets'
     | '/demo/tanstack-query'
+    | '/tokens/$tokenId'
+    | '/api/token/$tokenId'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
+    | '/api/assets/$assetId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -174,8 +211,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UiDemoRoute: typeof UiDemoRoute
-  ApiAssetsRoute: typeof ApiAssetsRoute
+  ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  TokensTokenIdRoute: typeof TokensTokenIdRoute
+  ApiTokenTokenIdRoute: typeof ApiTokenTokenIdRoute
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
@@ -200,6 +239,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tokens/$tokenId': {
+      id: '/tokens/$tokenId'
+      path: '/tokens/$tokenId'
+      fullPath: '/tokens/$tokenId'
+      preLoaderRoute: typeof TokensTokenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -244,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoApiNamesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/token/$tokenId': {
+      id: '/api/token/$tokenId'
+      path: '/api/token/$tokenId'
+      fullPath: '/api/token/$tokenId'
+      preLoaderRoute: typeof ApiTokenTokenIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/start/ssr/': {
       id: '/demo/start/ssr/'
       path: '/demo/start/ssr'
@@ -272,14 +325,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/assets/$assetId/transactions': {
+      id: '/api/assets/$assetId/transactions'
+      path: '/$assetId/transactions'
+      fullPath: '/api/assets/$assetId/transactions'
+      preLoaderRoute: typeof ApiAssetsAssetIdTransactionsRouteImport
+      parentRoute: typeof ApiAssetsRoute
+    }
   }
 }
+
+interface ApiAssetsRouteChildren {
+  ApiAssetsAssetIdTransactionsRoute: typeof ApiAssetsAssetIdTransactionsRoute
+}
+
+const ApiAssetsRouteChildren: ApiAssetsRouteChildren = {
+  ApiAssetsAssetIdTransactionsRoute: ApiAssetsAssetIdTransactionsRoute,
+}
+
+const ApiAssetsRouteWithChildren = ApiAssetsRoute._addFileChildren(
+  ApiAssetsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UiDemoRoute: UiDemoRoute,
-  ApiAssetsRoute: ApiAssetsRoute,
+  ApiAssetsRoute: ApiAssetsRouteWithChildren,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  TokensTokenIdRoute: TokensTokenIdRoute,
+  ApiTokenTokenIdRoute: ApiTokenTokenIdRoute,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,

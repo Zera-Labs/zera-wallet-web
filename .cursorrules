@@ -1,3 +1,17 @@
+# Project information
+This is a crypto wallet app built with:
+- TanStack Start
+- TanStack Router
+- TanStack Query
+- Tailwind CSS
+- Shadcn UI
+- Vite
+- Pnpm
+- Cloudflare
+- Wrangler
+- TypeScript
+
+
 # shadcn instructions
 
 Use the latest version of Shadcn to install new components, like this command to add a button component:

@@ -1,20 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
+import { useDemoNames } from '@/hooks/useDemo'
 
 import { createFileRoute } from '@tanstack/react-router'
 
-function getNames() {
-  return fetch('/demo/api/names').then((res) => res.json())
-}
 
 export const Route = createFileRoute('/demo/start/api-request')({
   component: Home,
 })
 
 function Home() {
-  const { data: names = [] } = useQuery({
-    queryKey: ['names'],
-    queryFn: getNames,
-  })
+  const { data: names = [] } = useDemoNames()
 
   return (
     <div
