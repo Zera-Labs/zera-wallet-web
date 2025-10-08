@@ -13,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarRail,
 } from '@/components/ui/sidebar'
 
 type WalletLayoutProps = {
@@ -50,19 +49,19 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                           className: cn(
                             'flex items-center gap-3 w-full',
                             'h-11 rounded-[12px] px-3',
-                            'bg-[rgba(151,223,177,0.15)] border border-[rgba(151,223,177,0.4)]'
+                            'bg-sidebar-accent border border-sidebar-border text-sidebar-accent-foreground'
                           ),
                         }}
                         inactiveProps={{
                           className: cn(
                             'flex items-center gap-3 w-full',
                             'h-11 rounded-[12px] px-3',
-                            'bg-white/10 hover:bg-white/10'
+                            'bg-white/10 hover:bg-sidebar-accent'
                           ),
                         }}
                       >
-                        <Icon className="size-6 text-[var(--brand-green-200)]" />
-                        <span className="text-[var(--brand-green-200)]">{label}</span>
+                        <Icon className="size-6" />
+                        <span className="text-sidebar-primary">{label}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -87,14 +86,14 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                           className: cn(
                             'flex items-center gap-3 w-full',
                             'h-11 rounded-[12px] px-3',
-                            'bg-[rgba(151,223,177,0.15)] border border-[rgba(151,223,177,0.4)]'
+                            'bg-sidebar-accent border border-sidebar-border text-sidebar-accent-foreground'
                           ),
                         }}
                         inactiveProps={{
                           className: cn(
                             'flex items-center gap-3 w-full',
                             'h-11 rounded-[12px] px-3',
-                            'bg-white/10 hover:bg-white/10'
+                            'bg-white/10 hover:bg-sidebar-accent'
                           ),
                         }}
                       >
