@@ -8,21 +8,21 @@
   src: url('/PPNeueMachina-Light.otf') format('opentype');
   font-weight: 300;
   font-style: normal;
-  font-display: optional;
+  font-display: swap;
 }
 @font-face {
   font-family: 'PP Neue Machina';
   src: url('/PPNeueMachina-Regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
-  font-display: optional;
+  font-display: swap;
 }
 @font-face {
   font-family: 'PP Neue Machina';
   src: url('/PPNeueMachina-Ultrabold.otf') format('opentype');
   font-weight: 800;
   font-style: normal;
-  font-display: optional;
+  font-display: swap;
 }
 
 /* Self-hosted IBM Plex Mono (normal) */
@@ -255,6 +255,8 @@ code {
   --subdued-800: #143524;
   --subdued-900: #0a1b12;
   --subdued-950: #050d09;
+
+  --wallet-card-grey: #171717;
 }
 
 @theme inline {

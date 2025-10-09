@@ -20,7 +20,7 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white focus-visible:ring-[3px] focus-visible:ring-red-500/40",
         // Outline (transparent with border and green text)
         outline:
-          "bg-[rgba(255,255,255,0.1)] border-border text-[var(--brand-green)] focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",
+          "bg-[var(--brand-green-900)] border-[var(--brand-green-300)] text-[var(--brand-green)] focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",
         // Ghost (text only)
         ghost:
           "border-transparent bg-transparent text-foreground focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",

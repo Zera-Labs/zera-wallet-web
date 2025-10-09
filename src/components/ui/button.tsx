@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
-        icon: "size-[44px] rounded-full border border-input/40 bg-input/20 hover:bg-input/30 [&_svg:not([class*='size-'])]:size-6",
+        icon: "size-[44px] rounded-full border border-input/40 bg-white/10 hover:bg-white/20 [&_svg:not([class*='size-'])]:size-6 border-none",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
