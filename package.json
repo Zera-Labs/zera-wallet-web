@@ -36,6 +36,7 @@
     "@tanstack/router-plugin": "^1.132.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lightweight-charts": "^5.0.9",
     "lucide-react": "^0.544.0",
     "pg": "^8.11.0",
     "prism-react-renderer": "^2.4.1",

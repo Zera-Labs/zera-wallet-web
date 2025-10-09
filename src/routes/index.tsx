@@ -2,6 +2,7 @@ import * as React from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAssets } from '@/hooks/useAssets'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import PerformanceChart from '@/components/PerformanceChart'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PiggyBank, Banknote, ArrowLeftRight, Circle } from 'lucide-react'
@@ -24,7 +25,9 @@ function App() {
       <section className="relative py-20 px-6 overflow-hidden">
         <div className="grid w-full grid-cols-1 xl:grid-cols-[10fr_10fr_4fr] items-stretch gap-6 self-stretch">
           <Card variant="darkSolidGrey" className="h-[224px] py-6 px-4 w-full" />
-          <Card variant="darkSolidGrey" className="h-[224px] py-6 px-4 w-full" />
+          <Card variant="darkSolidGrey" className="h-[224px] py-6 px-4 w-full">
+            <PerformanceChart />
+          </Card>
           <Card
             variant="darkSolidGrey"
             className="h-[224px] py-6 px-4 w-full md:w-[256px] justify-between"
