@@ -6,6 +6,8 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Button } from '@/components/ui/button'
 import { useEffect, useMemo } from 'react'
 import { useLiveToken, ensureFeed, releaseFeed } from '@/stores/tokenFeed'
+import { ArrowUp, ArrowDown, ArrowLeftRight, CircleEllipsis } from 'lucide-react'
+import PerformanceChart from '@/components/PerformanceChart'
 
 export const Route = createFileRoute('/tokens/$tokenId')({
   component: TokenPage,
@@ -50,15 +52,23 @@ function TokenPage() {
             {(pnlPercent != null ? `${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '—`')}%
           </Badge>
         </div>
-        <Card variant="dark" className="w-full min-h-[260px]" />
+        <Card variant="darkSolidGrey" className="w-full min-h-[260px] py-3 px-4">
+          <PerformanceChart
+            ranges={["1H", "1D", "1W", "1M", "YTD", "ALL"]}
+            defaultRange="1D"
+            chartHeight={180}
+            title="Performance"
+            currencyBadge="USD"
+          />
+        </Card>
       </section>
 
       <section className="py-6">
         <div className="flex gap-4">
-          <Button variant="secondary" className="rounded-full size-[64px] p-0">↑</Button>
-          <Button variant="secondary" className="rounded-full size-[64px] p-0">↓</Button>
-          <Button variant="secondary" className="rounded-full size-[64px] p-0">↔</Button>
-          <Button variant="secondary" className="rounded-full size-[64px] p-0">⋯</Button>
+          <Button variant="icon" size="icon-44" aria-label="Up" pill><ArrowUp aria-hidden="true" /></Button>
+          <Button variant="icon" size="icon-44" aria-label="Down" pill><ArrowDown aria-hidden="true" /></Button>
+          <Button variant="icon" size="icon-44" aria-label="Swap" pill><ArrowLeftRight aria-hidden="true" /></Button>
+          <Button variant="icon" size="icon-44" aria-label="More" pill><CircleEllipsis aria-hidden="true" /></Button>
         </div>
       </section>
 

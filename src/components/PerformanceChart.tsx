@@ -2,19 +2,44 @@ import * as React from 'react'
 import { IChartApi, ISeriesApi, UTCTimestamp, ColorType } from 'lightweight-charts'
 import { Badge } from './ui/badge'
 
-export default function PerformanceChart() {
+type RangeOption = '1H' | '1D' | '1W' | '1M' | 'YTD' | 'ALL' | '24H'
+
+const DEFAULT_RANGES: ReadonlyArray<RangeOption> = ['24H', '1W', '1M'] as const
+
+interface PerformanceChartProps {
+  ranges?: ReadonlyArray<RangeOption>
+  defaultRange?: RangeOption
+  chartHeight?: number
+  className?: string
+  showHeader?: boolean
+  title?: string
+  currencyBadge?: string
+}
+
+export default function PerformanceChart({
+  ranges = DEFAULT_RANGES,
+  defaultRange,
+  chartHeight = 150,
+  className,
+  showHeader = true,
+  title = 'Performance',
+  currencyBadge = 'USD',
+}: PerformanceChartProps) {
   const containerRef = React.useRef<HTMLDivElement | null>(null)
   const chartRef = React.useRef<IChartApi | null>(null)
   const seriesRef = React.useRef<ISeriesApi<'Area'> | null>(null)
-  const [range, setRange] = React.useState<'24H' | '1W' | '1M'>('24H')
+  const [range, setRange] = React.useState<RangeOption>(defaultRange ?? ranges[0])
 
-  function generateData(kind: '24H' | '1W' | '1M') {
+  function generateData(kind: RangeOption) {
     const now = Math.floor(Date.now() / 1000)
     let step: number
     let points: number
-    if (kind === '24H') { step = 60 * 60; points = 24 }
+    if (kind === '1H') { step = 60; points = 60 }
+    else if (kind === '1D' || kind === '24H') { step = 60 * 60; points = 24 }
     else if (kind === '1W') { step = 24 * 60 * 60; points = 7 }
-    else { step = 24 * 60 * 60; points = 30 }
+    else if (kind === '1M') { step = 24 * 60 * 60; points = 30 }
+    else if (kind === 'YTD') { step = 24 * 60 * 60; points = 365 }
+    else { step = 7 * 24 * 60 * 60; points = 260 } // ALL
 
     const start = now - step * (points - 1)
     const data: Array<{ time: UTCTimestamp, value: number }> = []
@@ -85,19 +110,27 @@ export default function PerformanceChart() {
   }, [range])
 
   return (
-    <div className="w-full h-[244px]">
-      <div className="flex h-[44px] justify-between items-center">
-        <div className="flex items-center justify-between">
-            Performance
-            <Badge variant="secondary" className="ml-2">USD</Badge>
+    <div className={className ?? ''}>
+      {showHeader ? (
+        <div className="flex h-[44px] justify-between items-center">
+          <div className="flex items-center justify-between">
+              {title}
+              <Badge variant="secondary" className="ml-2">{currencyBadge}</Badge>
+          </div>
+          <div className="mb-2 flex gap-2">
+            {ranges.map((r) => (
+              <button
+                key={r}
+                className={`px-3 py-1 rounded-md ${range === r ? 'bg-[var(--brand-green)] text-black' : 'bg-white/10'}`}
+                onClick={() => setRange(r)}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="mb-2 flex gap-2">
-            <button className={`px-3 py-1 rounded-md ${range === '24H' ? 'bg-[var(--brand-green)] text-black' : 'bg-white/10'}`} onClick={() => setRange('24H')}>24H</button>
-            <button className={`px-3 py-1 rounded-md ${range === '1W' ? 'bg-[var(--brand-green)] text-black' : 'bg-white/10'}`} onClick={() => setRange('1W')}>1W</button>
-            <button className={`px-3 py-1 rounded-md ${range === '1M' ? 'bg-[var(--brand-green)] text-black' : 'bg-white/10'}`} onClick={() => setRange('1M')}>1M</button>
-        </div>
-      </div>
-      <div ref={containerRef} className="h-[150px] w-full" />
+      ) : null}
+      <div ref={containerRef} className="w-full" style={{ height: chartHeight }} />
     </div>
   )
 }
