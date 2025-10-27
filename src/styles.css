@@ -167,13 +167,13 @@ code {
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: #050505;
+  --sidebar: #171717;
   --sidebar-foreground: var(--text-primary);
-  --sidebar-primary: var(--brand-green);
+  --sidebar-primary: var(--brand-green-300);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: var(--brand-light-dark-green);
+  --sidebar-accent: #97DFB126;
   --sidebar-accent-foreground: var(--text-primary);
-  --sidebar-border: var(--border);
+  --sidebar-border: #97DFB166;
   --sidebar-ring: #000;
 
   /* Brand Colors */
@@ -255,6 +255,12 @@ code {
   --subdued-800: #143524;
   --subdued-900: #0a1b12;
   --subdued-950: #050d09;
+
+  --solana-border: #498DC3;
+  --ethereum-border: #454545;
+
+  --balance-red: rgb(225, 28, 28);
+  --balance-green: rgba(34,62,34,0.5);
 
   --wallet-card-grey: #171717;
 }

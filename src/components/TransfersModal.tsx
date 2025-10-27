@@ -3,11 +3,9 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogC
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowUpRight, X, Copy, AlertTriangle, ArrowRight } from "lucide-react"
+import { ArrowUpRight, X, Copy, AlertTriangle } from "lucide-react"
 import { useUser } from "@/hooks/useUser"
 import TokenSelect from "@/components/TokenSelect"
-
-type Recipient = { id: string; name: string; address: string }
 
 type TransfersModalProps = {
   open: boolean
@@ -44,16 +42,26 @@ export default function TransfersModal({ open, onOpenChange, initialMode = "send
   )
 }
 
+// Formats a string of digits as an amount with 2 decimal places using implied cents
+function formatCents(digits: string) {
+  const onlyDigits = digits.replace(/\D/g, "")
+  if (!onlyDigits) return ""
+  const padded = onlyDigits.padStart(3, "0")
+  const integer = padded.slice(0, -2).replace(/^0+/, "") || "0"
+  const fractional = padded.slice(-2)
+  return `${integer}.${fractional}`
+}
+
+function sanitizeDigits(value: string) {
+  return value.replace(/\D/g, "")
+}
+
 function SendView() {
   const [token, setToken] = React.useState<string | undefined>(undefined)
-  const [amount, setAmount] = React.useState("")
+  const [amountCents, setAmountCents] = React.useState("")
   const [recipient, setRecipient] = React.useState("")
 
-  const recent: Recipient[] = [
-    { id: "a", name: "Alice", address: "Dyw8....NSKK" },
-    { id: "b", name: "Bob", address: "Dyw8....NSKK" },
-    { id: "c", name: "Charlie", address: "Dyw8....NSKK" },
-  ]
+  const formattedAmount = React.useMemo(() => formatCents(amountCents), [amountCents])
 
   return (
     <div className="flex flex-col gap-4 px-4 pb-4">
@@ -65,10 +73,16 @@ function SendView() {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-[var(--text-primary)]">Amount</label>
         <div className="relative">
-          <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
+          <Input
+            inputMode="numeric" 
+            pattern="\\d*"
+            value={formattedAmount}
+            onChange={(e) => setAmountCents(sanitizeDigits(e.target.value))}
+            placeholder="0.00"
+          />
           <Button
             variant="ghost"
-            onClick={() => setAmount("MAX")}
+            onClick={() => setAmountCents("0")}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--brand-green-500)] text-sm"
           >
             MAX
@@ -79,35 +93,10 @@ function SendView() {
       <div className="flex flex-col gap-2">
         <label className="text-sm text-[var(--text-primary)]">Recipient</label>
         <Input value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="" />
-
-        <Card variant="outline" tone="green" className="bg-black/40 rounded-md border-[var(--brand-green-50]/20">
-          <div className="px-4 pt-2 pb-1 text-xs text-[var(--text-primary)]">Recent recipients</div>
-          <div className="flex flex-col gap-2">
-            {recent.map((r) => (
-              <Button
-                key={r.id}
-                onClick={() => setRecipient(r.address)}
-                className="flex items-center gap-3 px-2 py-2 text-left hover:bg-input/20"
-                variant="ghost"
-              >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-green-900)] text-[var(--text-primary)]">
-                  {r.name[0]}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm text-white">{r.name}</div>
-                  <div className="text-xs text-muted-foreground">{r.address}</div>
-                </div>
-                <div className="flex items-center gap-2 text-[var(--brand-green-500)]">
-                  Send again <ArrowRight className="size-4" />
-                </div>
-              </Button>
-            ))}
-          </div>
-        </Card>
       </div>
 
       <Card variant="outline" tone="green" className="rounded-md">
-        <div className="flex flex-col gap-2 px-4 py-2 text-[var(--text-primary)]">
+        <div className="flex flex-col gap-2 text-[var(--text-primary)]">
           <div className="flex items-center justify-between text-sm">
             <span>Network Fee</span>
             <span>0.000005 SOL</span>
@@ -142,7 +131,8 @@ function ReceiveView() {
   const [token, setToken] = React.useState<string | undefined>(undefined)
   const sol = user?.linkedAccounts.find((a: any) => a.type === "wallet" && a.chainType === "solana") as any
   const address = sol?.address ?? "YourSolAddressHere..."
-  const [amount, setAmount] = React.useState("")
+  const [amountCents, setAmountCents] = React.useState("")
+  const formattedAmount = React.useMemo(() => formatCents(amountCents), [amountCents])
 
   const copy = async () => {
     try {
@@ -151,7 +141,7 @@ function ReceiveView() {
   }
 
   const share = async () => {
-    const text = `Receive ${token}${amount ? ` (${amount})` : ""} at ${address}`
+    const text = `Receive ${token}${formattedAmount ? ` (${formattedAmount})` : ""} at ${address}`
     // Fire and forget; not all environments support it
     try {
       if (navigator?.share) await navigator.share({ title: `Receive ${token}`, text })
@@ -168,10 +158,16 @@ function ReceiveView() {
       <div className="flex flex-col gap-1">
         <label className="text-sm text-[var(--text-primary)]">Amount (Optional)</label>
         <div className="relative">
-          <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" />
+          <Input
+            inputMode="numeric"
+            pattern="\\d*"
+            value={formattedAmount}
+            onChange={(e) => setAmountCents(sanitizeDigits(e.target.value))}
+            placeholder="0.00"
+          />
           <Button
             variant="ghost"
-            onClick={() => setAmount("MAX")}
+            onClick={() => setAmountCents("0")}
             className="text-[var(--brand-green-500)]"
           >
             MAX

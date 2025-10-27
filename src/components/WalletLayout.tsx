@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Activity, Eye, Scale, Settings, Shield, CircleSlash } from 'lucide-react'
+import { Activity, Scale, Settings, Shield, House, EyeOff } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 
@@ -21,11 +21,10 @@ type WalletLayoutProps = {
 
 export default function WalletLayout({ children }: WalletLayoutProps) {
   const topItems = [
-    { key: 'overview', label: 'Overview', icon: Eye, to: '/' },
-    { key: 'zkcash', label: 'ZK Cash', icon: CircleSlash, to: '/demo/start/ssr/full-ssr' },
+    { key: 'Dashboard', label: 'Dashboard', icon: House, to: '/' },
+    { key: 'Private Cash', label: 'Private Cash', icon: EyeOff, to: '/demo/start/ssr/full-ssr' },
     { key: 'payments', label: 'Payments', icon: Scale, to: '/demo/api/names' },
     { key: 'activity', label: 'Activity', icon: Activity, to: '/demo/start/ssr/spa-mode' },
-    { key: 'vault', label: 'Vault', icon: Shield, to: '/demo/tanstack-query' },
   ] as const
 
   return (
@@ -40,7 +39,7 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                     <SidebarMenuButton
                       tooltip={label}
                       asChild
-                      className={cn('h-11 rounded-[12px] px-3 gap-3', 'text-[18px] leading-[14px] font-normal')}
+                      className={cn('h-11 rounded-[12px] px-3 gap-3', 'text-[18px] leading-[14px] font-normal', '[&>svg]:!size-6')}
                     >
                       <Link
                         to={to}
@@ -60,7 +59,7 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                           ),
                         }}
                       >
-                        <Icon className="size-6" />
+                        <Icon className="size-6 text-[var(--brand-green-300)]" />
                         <span className="text-sidebar-primary">{label}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -78,7 +77,7 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                     <SidebarMenuButton
                       tooltip="Settings"
                       asChild
-                      className={cn('h-11 rounded-[12px] px-3 gap-3', 'text-[18px] leading-[14px] font-normal')}
+                      className={cn('h-11 rounded-[12px] px-3 gap-3', 'text-[18px] leading-[14px] font-normal', '[&>svg]:!size-6')}
                     >
                       <Link
                         to="/demo/start/api-request"

@@ -33,7 +33,7 @@ export default function TokenSelect({ value, onChange }: TokenSelectProps) {
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <Input readOnly value={value ?? ""} className="pr-8 text-[var(--brand-green-300)]" />
+        <Input readOnly value={value ?? ""} className="pr-8 text-[var(--brand-green-300)] pointer-events-none select-none" />
         <ChevronDown className="pointer-events-none absolute right-2 top-1/2 size-4 -translate-y-1/2 text-[var(--brand-green-500)]" />
       </button>
       {open ? (

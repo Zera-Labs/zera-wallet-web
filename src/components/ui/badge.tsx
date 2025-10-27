@@ -14,7 +14,7 @@ const badgeVariants = cva(
           "border-transparent bg-[var(--brand-green)] text-[var(--primary-foreground)] focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",
         // Secondary (neutral/subtle)
         secondary:
-          "border-transparent bg-white/10 text-foreground/75 focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",
+          "border-none bg-[var(--brand-light-dark-green)] text-[var(--brand-green-50)] focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",
         // Destructive (filled red)
         destructive:
           "border-transparent bg-destructive text-white focus-visible:ring-[3px] focus-visible:ring-red-500/40",

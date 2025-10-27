@@ -59,7 +59,7 @@ const baseHoldings: Array<Pick<Holding, 'chain' | 'address' | 'mint' | 'symbol' 
     address: '7pZ...RiCoSOL',
     mint: 'Es9vMFrzaCERz...USDCmint',
     symbol: 'ETH',
-    name: 'Ethereum (wrapped/price proxy)',
+    name: 'Ethereum (wrapped)',
     decimals: 6,
     amountRaw: '129010000',
     priceUsd: 0.99374238,

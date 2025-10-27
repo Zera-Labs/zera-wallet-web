@@ -482,7 +482,7 @@ const sidebarMenuButtonVariants = cva(
       variant: {
         default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
         outline:
-          "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
+          "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
       size: {
         // Figma sizes: 1st level ~35-40px, collapsed icon ~36px
@@ -522,8 +522,7 @@ function SidebarMenuButton({
       data-active={isActive}
       className={cn(
         sidebarMenuButtonVariants({ variant, size }),
-        // icon/text colors tuned for brand green palette
-        "text-[var(--brand-green-200)] data-[active=true]:text-[var(--text-primary)]",
+        "text-[var(--brand-green-200)]",
         className
       )}
       {...props}

@@ -7,7 +7,7 @@ const inputVariants = cva(
   [
     // Base visual styles
     "w-full min-w-0 rounded-md border bg-transparent text-base md:text-sm shadow-xs outline-none",
-    "border-input dark:bg-input/30",
+    "border-input bg-[var(--brand-green-950)]",
     // Text helpers
     "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground",
     // Transitions
