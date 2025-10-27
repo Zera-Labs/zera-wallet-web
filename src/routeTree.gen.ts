@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UiDemoRouteImport } from './routes/ui-demo'
+import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TokensTokenIdRouteImport } from './routes/tokens.$tokenId'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
@@ -23,11 +24,17 @@ import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.i
 import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as ApiWalletsWalletIdTransactionsRouteImport } from './routes/api.wallets.$walletId.transactions'
 import { Route as ApiAssetsAssetIdTransactionsRouteImport } from './routes/api.assets.$assetId.transactions'
 
 const UiDemoRoute = UiDemoRouteImport.update({
   id: '/ui-demo',
   path: '/ui-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActivityRoute = ActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +102,12 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
   path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWalletsWalletIdTransactionsRoute =
+  ApiWalletsWalletIdTransactionsRouteImport.update({
+    id: '/api/wallets/$walletId/transactions',
+    path: '/api/wallets/$walletId/transactions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiAssetsAssetIdTransactionsRoute =
   ApiAssetsAssetIdTransactionsRouteImport.update({
     id: '/$assetId/transactions',
@@ -104,6 +117,7 @@ const ApiAssetsAssetIdTransactionsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -114,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
+  '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -121,6 +136,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -131,6 +147,7 @@ export interface FileRoutesByTo {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
+  '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -139,6 +156,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/activity': typeof ActivityRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -149,6 +167,7 @@ export interface FileRoutesById {
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
+  '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
   '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
@@ -158,6 +177,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/activity'
     | '/ui-demo'
     | '/api/assets'
     | '/demo/tanstack-query'
@@ -168,6 +188,7 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
+    | '/api/wallets/$walletId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -175,6 +196,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/activity'
     | '/ui-demo'
     | '/api/assets'
     | '/demo/tanstack-query'
@@ -185,6 +207,7 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
+    | '/api/wallets/$walletId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -192,6 +215,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/activity'
     | '/ui-demo'
     | '/api/assets'
     | '/demo/tanstack-query'
@@ -202,6 +226,7 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
+    | '/api/wallets/$walletId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
     | '/demo/start/ssr/spa-mode'
@@ -210,6 +235,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityRoute: typeof ActivityRoute
   UiDemoRoute: typeof UiDemoRoute
   ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
@@ -219,6 +245,7 @@ export interface RootRouteChildren {
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
   DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
+  ApiWalletsWalletIdTransactionsRoute: typeof ApiWalletsWalletIdTransactionsRoute
   DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
   DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
   DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
@@ -232,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/ui-demo'
       fullPath: '/ui-demo'
       preLoaderRoute: typeof UiDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity': {
+      id: '/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof ActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -325,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/wallets/$walletId/transactions': {
+      id: '/api/wallets/$walletId/transactions'
+      path: '/api/wallets/$walletId/transactions'
+      fullPath: '/api/wallets/$walletId/transactions'
+      preLoaderRoute: typeof ApiWalletsWalletIdTransactionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/assets/$assetId/transactions': {
       id: '/api/assets/$assetId/transactions'
       path: '/$assetId/transactions'
@@ -349,6 +390,7 @@ const ApiAssetsRouteWithChildren = ApiAssetsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityRoute: ActivityRoute,
   UiDemoRoute: UiDemoRoute,
   ApiAssetsRoute: ApiAssetsRouteWithChildren,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
@@ -358,6 +400,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
   DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
+  ApiWalletsWalletIdTransactionsRoute: ApiWalletsWalletIdTransactionsRoute,
   DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
   DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
   DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,

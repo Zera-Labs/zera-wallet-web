@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Activity, Scale, Settings, Shield, House, EyeOff } from 'lucide-react'
+import { Activity, Scale, House, EyeOff } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
 
@@ -24,7 +24,7 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
     { key: 'Dashboard', label: 'Dashboard', icon: House, to: '/' },
     { key: 'Private Cash', label: 'Private Cash', icon: EyeOff, to: '/demo/start/ssr/full-ssr' },
     { key: 'payments', label: 'Payments', icon: Scale, to: '/demo/api/names' },
-    { key: 'activity', label: 'Activity', icon: Activity, to: '/demo/start/ssr/spa-mode' },
+    { key: 'activity', label: 'Activity', icon: Activity, to: '/activity' },
   ] as const
 
   return (
@@ -68,43 +68,6 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-
-          <div className="mt-auto">
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      tooltip="Settings"
-                      asChild
-                      className={cn('h-11 rounded-[12px] px-3 gap-3', 'text-[18px] leading-[14px] font-normal', '[&>svg]:!size-6')}
-                    >
-                      <Link
-                        to="/demo/start/api-request"
-                        activeProps={{
-                          className: cn(
-                            'flex items-center gap-3 w-full',
-                            'h-11 rounded-[12px] px-3',
-                            'bg-sidebar-accent border border-sidebar-border text-sidebar-accent-foreground'
-                          ),
-                        }}
-                        inactiveProps={{
-                          className: cn(
-                            'flex items-center gap-3 w-full',
-                            'h-11 rounded-[12px] px-3',
-                            'bg-white/10 hover:bg-sidebar-accent'
-                          ),
-                        }}
-                      >
-                        <Settings className="size-6 text-[var(--brand-green-200)]" />
-                        <span className="text-[var(--brand-green-200)]">Settings</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </div>
         </SidebarContent>
       </Sidebar>
       <SidebarInset>

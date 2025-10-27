@@ -1,11 +1,13 @@
 import * as React from "react"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowUpRight, X, Copy, AlertTriangle } from "lucide-react"
+import { ArrowUpRight, Copy, AlertTriangle } from "lucide-react"
 import { useUser } from "@/hooks/useUser"
 import TokenSelect from "@/components/TokenSelect"
+import QRCode from "react-qr-code"
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 
 type TransfersModalProps = {
   open: boolean
@@ -30,9 +32,6 @@ export default function TransfersModal({ open, onOpenChange, initialMode = "send
               >
                 {mode === "send" ? "Receive" : "Send"}
               </Button>
-              <DialogClose className="opacity-70 hover:opacity-100" aria-label="Close">
-                <X className="size-4" />
-              </DialogClose>
             </div>
           </div>
         </DialogHeader>
@@ -71,7 +70,7 @@ function SendView() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm text-[var(--text-primary)]">Amount</label>
+        <label className="text-sm text-[var(--text-primary)]">Amount ({token})</label>
         <div className="relative">
           <Input
             inputMode="numeric" 
@@ -91,7 +90,7 @@ function SendView() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm text-[var(--text-primary)]">Recipient</label>
+        <label className="text-sm text-[var(--text-primary)]">Recipient Wallet Address</label>
         <Input value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="" />
       </div>
 
@@ -131,20 +130,14 @@ function ReceiveView() {
   const [token, setToken] = React.useState<string | undefined>(undefined)
   const sol = user?.linkedAccounts.find((a: any) => a.type === "wallet" && a.chainType === "solana") as any
   const address = sol?.address ?? "YourSolAddressHere..."
-  const [amountCents, setAmountCents] = React.useState("")
-  const formattedAmount = React.useMemo(() => formatCents(amountCents), [amountCents])
+  // Amount request inputs can be added later if needed
+  const [copied, setCopied] = React.useState(false)
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(address)
-    } catch {}
-  }
-
-  const share = async () => {
-    const text = `Receive ${token}${formattedAmount ? ` (${formattedAmount})` : ""} at ${address}`
-    // Fire and forget; not all environments support it
-    try {
-      if (navigator?.share) await navigator.share({ title: `Receive ${token}`, text })
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1200)
     } catch {}
   }
 
@@ -155,42 +148,23 @@ function ReceiveView() {
         <TokenSelect value={token} onChange={setToken} />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm text-[var(--text-primary)]">Amount (Optional)</label>
-        <div className="relative">
-          <Input
-            inputMode="numeric"
-            pattern="\\d*"
-            value={formattedAmount}
-            onChange={(e) => setAmountCents(sanitizeDigits(e.target.value))}
-            placeholder="0.00"
-          />
-          <Button
-            variant="ghost"
-            onClick={() => setAmountCents("0")}
-            className="text-[var(--brand-green-500)]"
-          >
-            MAX
-          </Button>
-        </div>
-        <div className="text-xs text-muted-foreground">Leave blank to receive any amount</div>
-      </div>
-
       <div className="flex flex-col gap-2">
         <label className="text-sm text-[var(--text-primary)]">Your wallet address</label>
         <div className="relative">
           <Input readOnly value={address} className="pr-8" />
-          <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2" onClick={copy} aria-label="Copy">
-            <Copy className="size-4 text-[var(--brand-green-500)]" />
-          </button>
+          <Tooltip open={copied}>
+            <TooltipTrigger asChild>
+              <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 hover:opacity-80 hover:cursor-pointer" onClick={copy} aria-label="Copy">
+                <Copy className="size-4 text-[var(--brand-green-500)]" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent sideOffset={6}>Copied</TooltipContent>
+          </Tooltip>
         </div>
         <Card variant="outline" tone="green" className="rounded-md">
-          <div className="flex items-center justify-center h-[190px] text-[var(--brand-green-500)]">
-            {/* Placeholder for QR - integrate real QR later */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-2 p-4">
-              {Array.from({ length: 25 }).map((_, i) => (
-                <div key={i} className="size-4 bg-[var(--brand-green-500)]/30 rounded-[2px]" />
-              ))}
+          <div className="flex items-center justify-center h-[190px]">
+            <div className="bg-white p-2 rounded">
+              <QRCode value={`solana:${address}`} size={164} />
             </div>
           </div>
           <div className="pb-3 text-center text-xs text-[var(--text-primary)]">Your SOL QR</div>
@@ -209,9 +183,6 @@ function ReceiveView() {
       <DialogFooter className="px-0">
         <Button variant="outline" className="flex-1 uppercase border-[var(--brand-green-300)]/50 bg-[var(--brand-green-500)]/10 text-[var(--text-primary)]">
           Close
-        </Button>
-        <Button onClick={share} className="flex-1 uppercase bg-[var(--brand-green-500)] text-[var(--brand-green-950)]">
-          Share
         </Button>
       </DialogFooter>
     </div>

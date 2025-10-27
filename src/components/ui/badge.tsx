@@ -26,10 +26,26 @@ const badgeVariants = cva(
           "border-transparent bg-transparent text-foreground focus-visible:ring-[3px] focus-visible:ring-[var(--brand-light-green)]",
         // Balance badge; tone applied via compound variants
         balance: "border-transparent",
+        // Circular icon-only badge
+        icon:
+          "px-0 py-0 size-9 rounded-full border-none bg-white/10 text-[var(--brand-green-50)] flex items-center justify-center [&>svg]:size-6",
+        // Transaction status badge
+        tx:
+          "border-none bg-white/5 text-[var(--text-primary)] px-2 py-1 rounded-[8px] gap-1.5 [&>svg]:size-3.5",
       },
       tone: {
         green: null,
         red: null,
+      },
+      status: {
+        pending: null,
+        confirmed: null,
+        failed: null,
+        broadcasted: null,
+        execution_reverted: null,
+        replaced: null,
+        finalized: null,
+        provider_error: null,
       },
     },
     compoundVariants: [
@@ -45,6 +61,15 @@ const badgeVariants = cva(
         class:
           "bg-[rgba(62,34,34,0.5)] text-[#ff8d8d] focus-visible:ring-[3px] focus-visible:ring-red-500/40",
       },
+      // Transaction status colorways
+      { variant: "tx", status: "pending", class: "bg-[#4a3d00] text-[#ffd860] ring-0" },
+      { variant: "tx", status: "confirmed", class: "bg-[rgba(30,66,46,0.6)] text-[#7CFFAA] ring-0" },
+      { variant: "tx", status: "failed", class: "bg-[rgba(62,34,34,0.6)] text-[#ff8d8d] ring-0" },
+      { variant: "tx", status: "broadcasted", class: "bg-[rgba(30,41,59,0.6)] text-[#93C5FD] ring-0" },
+      { variant: "tx", status: "execution_reverted", class: "bg-[rgba(88,28,28,0.6)] text-[#FCA5A5] ring-0" },
+      { variant: "tx", status: "replaced", class: "bg-[rgba(30,27,75,0.6)] text-[#C4B5FD] ring-0" },
+      { variant: "tx", status: "finalized", class: "bg-[rgba(20,83,45,0.6)] text-[#86EFAC] ring-0" },
+      { variant: "tx", status: "provider_error", class: "bg-[rgba(67,20,20,0.6)] text-[#FCA5A5] ring-0" },
     ],
     defaultVariants: {
       variant: "default",
@@ -56,6 +81,7 @@ function Badge({
   className,
   variant,
   balanceTone,
+  status,
   asChild = false,
   ...props
 }: React.ComponentProps<"span"> &
@@ -65,7 +91,7 @@ function Badge({
   return (
     <Comp
       data-slot="badge"
-      className={cn(badgeVariants({ variant, tone: balanceTone }), className)}
+      className={cn(badgeVariants({ variant, tone: balanceTone, status }), className)}
       {...props}
     />
   )
