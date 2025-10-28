@@ -14,6 +14,7 @@ import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TokensTokenIdRouteImport } from './routes/tokens.$tokenId'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
+import { Route as ApiMeRouteImport } from './routes/api.me'
 import { Route as ApiAssetsRouteImport } from './routes/api.assets'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -50,6 +51,11 @@ const TokensTokenIdRoute = TokensTokenIdRouteImport.update({
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   id: '/demo/tanstack-query',
   path: '/demo/tanstack-query',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMeRoute = ApiMeRouteImport.update({
+  id: '/api/me',
+  path: '/api/me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAssetsRoute = ApiAssetsRouteImport.update({
@@ -120,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof ActivityRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
+  '/api/me': typeof ApiMeRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
+  '/api/me': typeof ApiMeRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/activity': typeof ActivityRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
+  '/api/me': typeof ApiMeRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/ui-demo'
     | '/api/assets'
+    | '/api/me'
     | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/ui-demo'
     | '/api/assets'
+    | '/api/me'
     | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/ui-demo'
     | '/api/assets'
+    | '/api/me'
     | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
@@ -238,6 +250,7 @@ export interface RootRouteChildren {
   ActivityRoute: typeof ActivityRoute
   UiDemoRoute: typeof UiDemoRoute
   ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
+  ApiMeRoute: typeof ApiMeRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   TokensTokenIdRoute: typeof TokensTokenIdRoute
   ApiTokenTokenIdRoute: typeof ApiTokenTokenIdRoute
@@ -287,6 +300,13 @@ declare module '@tanstack/react-router' {
       path: '/demo/tanstack-query'
       fullPath: '/demo/tanstack-query'
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/me': {
+      id: '/api/me'
+      path: '/api/me'
+      fullPath: '/api/me'
+      preLoaderRoute: typeof ApiMeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/assets': {
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivityRoute: ActivityRoute,
   UiDemoRoute: UiDemoRoute,
   ApiAssetsRoute: ApiAssetsRouteWithChildren,
+  ApiMeRoute: ApiMeRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   TokensTokenIdRoute: TokensTokenIdRoute,
   ApiTokenTokenIdRoute: ApiTokenTokenIdRoute,

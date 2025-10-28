@@ -1,4 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser, getSolanaWalletPrivyId } from '@/lib/privy.server'
+import { getWalletTransactions } from '@/lib/privy.rest'
+import { getTransactionsForAddress } from '@/lib/solana.transactions'
 
 type Tx = {
   id: string
@@ -34,9 +37,24 @@ export const Route = createFileRoute('/api/assets/$assetId/transactions')({
   },
   server: {
     handlers: {
-      GET: ({ params }) => {
-        const rows = generateDummyTx(params.assetId)
-        return Response.json(rows)
+      GET: async ({ params, request }) => {
+        const user = await verifyRequestAndGetUser(request)
+        const owner = getFirstSolanaAddressFromPrivyUser(user)
+        if (!owner) return Response.json([])
+        // Filter real wallet transactions by asset symbol
+        const walletPrivyId = getSolanaWalletPrivyId(user, owner)
+        let data: any
+        if (walletPrivyId) {
+          data = await getWalletTransactions(walletPrivyId)
+        } else {
+          data = await getTransactionsForAddress(owner)
+        }
+        const sym = params.assetId.toLowerCase()
+        const filtered = {
+          ...data,
+          transactions: (data.transactions ?? []).filter((t: any) => String(t?.details?.asset || '').toLowerCase() === sym),
+        }
+        return Response.json(filtered)
       },
     },
   },

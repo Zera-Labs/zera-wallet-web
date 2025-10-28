@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { portfolioService } from '@/lib/portfolio.service'
-import { mockPrivyUser } from '@/data/privy.mock'
+import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
 
 type TokenMeta = {
   id: string
@@ -20,8 +20,9 @@ export const Route = createFileRoute('/api/token/$tokenId')({
   },
   server: {
     handlers: {
-      GET: async ({ params }) => {
-        const owner = mockPrivyUser.linkedAccounts.find((a: any) => a.type === 'wallet' && a.chainType === 'solana')?.address
+      GET: async ({ params, request }) => {
+        const user = await verifyRequestAndGetUser(request)
+        const owner = getFirstSolanaAddressFromPrivyUser(user)
         const symbol = params.tokenId
         if (owner) {
           const holding = await portfolioService.getHoldingBySymbol(owner, symbol)

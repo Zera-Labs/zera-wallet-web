@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { portfolioService } from '@/lib/portfolio.service'
-import { mockPrivyUser } from '@/data/privy.mock'
+import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
 
 type Asset = {
   id: string
@@ -17,8 +17,9 @@ type Asset = {
 export const Route = createFileRoute('/api/assets')({
   server: {
     handlers: {
-      GET: async () => {
-        const owner = mockPrivyUser.linkedAccounts.find((a: any) => a.type === 'wallet' && a.chainType === 'solana')?.address
+      GET: async ({ request }) => {
+        const user = await verifyRequestAndGetUser(request)
+        const owner = getFirstSolanaAddressFromPrivyUser(user)
         if (!owner) return Response.json([])
         const holdings = await portfolioService.listHoldings(owner)
         const rows: Asset[] = holdings.map((h) => ({

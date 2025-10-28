@@ -14,6 +14,9 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 
+import * as React from 'react'
+const LazyPrivyProvider = React.lazy(() => import('@/components/PrivyProvider.client'))
+
 interface MyRouterContext {
   queryClient: QueryClient
 }
@@ -44,29 +47,39 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  return (
+  const app = (
     <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <WalletLayout>
-          {children}
-        </WalletLayout>
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            TanStackQueryDevtools,
-          ]}
-        />
-        <Scripts />
-      </body>
-    </html>
+    <head>
+      <HeadContent />
+    </head>
+    <body>
+      <WalletLayout>
+        {children}
+      </WalletLayout>
+      <TanStackDevtools
+        config={{
+          position: 'bottom-right',
+        }}
+        plugins={[
+          {
+            name: 'Tanstack Router',
+            render: <TanStackRouterDevtoolsPanel />,
+          },
+          TanStackQueryDevtools,
+        ]}
+      />
+      <Scripts />
+    </body>
+  </html>
+  )
+
+  if (typeof window === 'undefined') {
+    return app
+  }
+
+  return (
+    <React.Suspense fallback={app}>
+      <LazyPrivyProvider>{app}</LazyPrivyProvider>
+    </React.Suspense>
   )
 }

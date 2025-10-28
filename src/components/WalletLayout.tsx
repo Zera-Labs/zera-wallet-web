@@ -14,6 +14,8 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from '@/components/ui/sidebar'
+// Lazy-load the wallet auth button to avoid SSR importing client-only deps
+const WalletAuthButton = React.lazy(() => import('@/components/WalletAuthButton.client'))
 
 type WalletLayoutProps = {
   children: React.ReactNode
@@ -33,6 +35,13 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
+              <div className="mb-4">
+                {typeof window !== 'undefined' ? (
+                  <React.Suspense fallback={null}>
+                    <WalletAuthButton />
+                  </React.Suspense>
+                ) : null}
+              </div>
               <SidebarMenu>
                 {topItems.map(({ key, label, icon: Icon, to }) => (
                   <SidebarMenuItem key={key}>

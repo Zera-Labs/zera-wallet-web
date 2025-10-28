@@ -4,7 +4,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Badge } from '@/components/ui/badge'
 import { useTransactions } from '@/hooks/useTransactions'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
-import { mockPrivyUser } from '@/data/privy.mock'
+import { usePrivy } from '@privy-io/react-auth'
 import { Send, Download, Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
@@ -34,7 +34,10 @@ function shortAddress(addr: string) {
 }
 
 function ActivityPage() {
-  const walletId = mockPrivyUser.linkedAccounts[0]?.address ?? 'unknown-wallet'
+  const { user } = usePrivy()
+  const walletId = (user as any)?.wallets?.find((w: any) => w?.chainType === 'solana' || w?.chain === 'solana')?.address
+    ?? (user as any)?.linkedAccounts?.find((a: any) => a?.type === 'wallet' && (a?.chainType === 'solana' || a?.chain === 'solana'))?.address
+    ?? 'unknown-wallet'
   const { data, isLoading } = useTransactions(walletId)
   const rows = data?.transactions ?? []
   const [query, setQuery] = React.useState('')

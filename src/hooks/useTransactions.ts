@@ -1,5 +1,6 @@
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { z } from 'zod'
+import { usePrivy } from '@privy-io/react-auth'
 
 const TransactionDetailsSchema = z.object({
   type: z.enum(['transfer_sent', 'transfer_received']),
@@ -41,8 +42,11 @@ const TransactionsResponseSchema = z.object({
 export type Transaction = z.infer<typeof TransactionSchema>
 export type TransactionsResponse = z.infer<typeof TransactionsResponseSchema>
 
-async function fetchTransactions(walletId: string): Promise<TransactionsResponse> {
-  const res = await fetch(`/api/wallets/${encodeURIComponent(walletId)}/transactions`)
+async function fetchTransactions(walletId: string, getAccessToken?: () => Promise<string | undefined>): Promise<TransactionsResponse> {
+  const token = (await getAccessToken?.()) || undefined
+  const res = await fetch(`/api/wallets/${encodeURIComponent(walletId)}/transactions`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
   if (!res.ok) throw new Error('Failed to load transactions')
   const json = await res.json()
   return TransactionsResponseSchema.parse(json)
@@ -52,9 +56,10 @@ export function useTransactions(
   walletId: string,
   options?: Omit<UseQueryOptions<TransactionsResponse, Error>, 'queryKey' | 'queryFn'>,
 ) {
+  const { getAccessToken } = usePrivy()
   return useQuery<TransactionsResponse, Error>({
     queryKey: ['transactions', walletId],
-    queryFn: () => fetchTransactions(walletId),
+    queryFn: () => fetchTransactions(walletId, getAccessToken as any),
     enabled: !!walletId,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
