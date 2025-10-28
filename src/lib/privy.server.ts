@@ -1,4 +1,5 @@
 import { PrivyClient } from '@privy-io/server-auth'
+import { getWallets } from '@/lib/privy.rest'
 
 let client: PrivyClient | undefined
 
@@ -72,6 +73,34 @@ export function getSolanaWalletPrivyId(user: any, walletIdOrAddress: string): st
   const byId = wallets.find((w) => w.id === walletIdOrAddress)
   if (byId?.id) return byId.id
   return undefined
+}
+
+export function getFirstSolanaWalletPrivyId(user: any): string | undefined {
+  const wallets = getSolanaWallets(user)
+  const firstWithId = wallets.find((w) => !!w.id)
+  return firstWithId?.id
+}
+
+export async function fetchFirstSolanaWalletPrivyIdFromApi(user: any): Promise<string | undefined> {
+  try {
+    const userId = (user && (user.id || user.userId || user.user_id)) as string | undefined
+    if (!userId) return undefined
+    // List wallets by user_id (no chain filter)
+    const data = await getWallets({ user_id: userId })
+    const list: Array<any> = Array.isArray((data as any)?.wallets)
+      ? (data as any).wallets
+      : Array.isArray(data)
+        ? (data as any)
+        : []
+    const first = list.find((w) => (
+      typeof w?.chainType === 'string' && w.chainType.toLowerCase() === 'solana'
+    ) || (
+      typeof w?.chain === 'string' && w.chain.toLowerCase().includes('sol')
+    ))
+    return (first?.id as string | undefined) ?? undefined
+  } catch {
+    return undefined
+  }
 }
 
 

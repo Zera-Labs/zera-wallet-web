@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { listHoldings } from '@/lib/portfolio.service'
-import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
+import { listHoldings, listHoldingsFromPrivy } from '@/lib/portfolio.service'
+import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser, getSolanaWalletPrivyId, getFirstSolanaWalletPrivyId, fetchFirstSolanaWalletPrivyIdFromApi } from '@/lib/privy.server'
 
 type Asset = {
   id: string
@@ -21,12 +21,18 @@ export const Route = createFileRoute('/api/assets')({
         const user = await verifyRequestAndGetUser(request)
         const owner = getFirstSolanaAddressFromPrivyUser(user)
         if (!owner) return Response.json([])
-        const holdings = await listHoldings(owner)
+        let walletPrivyId = await fetchFirstSolanaWalletPrivyIdFromApi(user)
+        if (!walletPrivyId) {
+          walletPrivyId = getSolanaWalletPrivyId(user, owner) || getFirstSolanaWalletPrivyId(user)
+        }
+        const holdings = walletPrivyId
+          ? await listHoldingsFromPrivy(walletPrivyId, owner)
+          : await listHoldings(owner)
         const rows: Asset[] = holdings.map((h) => ({
           id: h.symbol.toLowerCase(),
           name: h.name,
           symbol: h.symbol,
-          chain: 'SOL',
+          chain: (h.chain || 'solana').toUpperCase().startsWith('SOL') ? 'SOL' : (h.chain || '').toUpperCase(),
           price: h.priceUsd,
           amount: h.amount,
           value: h.valueUsd,

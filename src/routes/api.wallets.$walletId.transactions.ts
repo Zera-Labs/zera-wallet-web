@@ -12,13 +12,10 @@ export const Route = createFileRoute('/api/wallets/$walletId/transactions')({
     handlers: {
       GET: async ({ params, request }) => {
         const user = await verifyRequestAndGetUser(request)
-        // Basic authorization: ensure the requested walletId belongs to the authenticated user
         const owner = getFirstSolanaAddressFromPrivyUser(user)
         if (!owner || owner !== params.walletId) {
           return new Response('Forbidden', { status: 403 })
         }
-        console.log('user', user)
-        console.log('params', params)
         const walletPrivyId = getSolanaWalletPrivyId(user, params.walletId)
         if (walletPrivyId) {
           const data = await getWalletTransactions(walletPrivyId)
