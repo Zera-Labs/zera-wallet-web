@@ -9,6 +9,8 @@ import { Eye, EyeOff, ArrowUp, ArrowDown, Send, Download } from 'lucide-react'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import AssetRow from '@/components/AssetRow'
 import TransfersModal from '@/components/TransfersModal'
+import { usePriceSocket } from '@/hooks/usePriceSocket'
+import { useTokenFeed } from '@/stores/tokenFeed'
 
 export const Route = createFileRoute('/')({
   component: App,
@@ -17,6 +19,17 @@ export const Route = createFileRoute('/')({
 function App() {
   const navigate = useNavigate()
   const { data: assets = [], isLoading } = useAssets()
+  const mints = React.useMemo(() => Array.from(new Set((assets ?? []).map((a) => a.mint).filter(Boolean))), [assets])
+  const pricesByMint = usePriceSocket(mints)
+  React.useEffect(() => {
+    const { setToken } = useTokenFeed.getState()
+    for (const [mint, data] of Object.entries(pricesByMint)) {
+      const price = data?.summary?.price_usd
+      if (typeof price === 'number') {
+        setToken(mint, { id: mint, price, pnl: 0 })
+      }
+    }
+  }, [pricesByMint])
   const [isTransferOpen, setIsTransferOpen] = React.useState(false)
   const [transferMode, setTransferMode] = React.useState<'send' | 'receive'>('send')
   const [isHidden, setIsHidden] = React.useState(false)

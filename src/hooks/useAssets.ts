@@ -7,6 +7,7 @@ export const AssetRowDataSchema = z.object({
   name: z.string(),
   symbol: z.string(),
   chain: z.string(),
+  mint: z.string(),
   price: z.number(),
   amount: z.number(),
   value: z.number(),

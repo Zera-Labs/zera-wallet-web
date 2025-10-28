@@ -14,7 +14,6 @@ import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TokensTokenIdRouteImport } from './routes/tokens.$tokenId'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as ApiPricesRouteImport } from './routes/api.prices'
 import { Route as ApiMeRouteImport } from './routes/api.me'
 import { Route as ApiAssetsRouteImport } from './routes/api.assets'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
@@ -52,11 +51,6 @@ const TokensTokenIdRoute = TokensTokenIdRouteImport.update({
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   id: '/demo/tanstack-query',
   path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPricesRoute = ApiPricesRouteImport.update({
-  id: '/api/prices',
-  path: '/api/prices',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMeRoute = ApiMeRouteImport.update({
@@ -133,7 +127,6 @@ export interface FileRoutesByFullPath {
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
-  '/api/prices': typeof ApiPricesRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
@@ -154,7 +147,6 @@ export interface FileRoutesByTo {
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
-  '/api/prices': typeof ApiPricesRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
@@ -176,7 +168,6 @@ export interface FileRoutesById {
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
-  '/api/prices': typeof ApiPricesRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
@@ -199,7 +190,6 @@ export interface FileRouteTypes {
     | '/ui-demo'
     | '/api/assets'
     | '/api/me'
-    | '/api/prices'
     | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
@@ -220,7 +210,6 @@ export interface FileRouteTypes {
     | '/ui-demo'
     | '/api/assets'
     | '/api/me'
-    | '/api/prices'
     | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
@@ -241,7 +230,6 @@ export interface FileRouteTypes {
     | '/ui-demo'
     | '/api/assets'
     | '/api/me'
-    | '/api/prices'
     | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
@@ -263,7 +251,6 @@ export interface RootRouteChildren {
   UiDemoRoute: typeof UiDemoRoute
   ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
   ApiMeRoute: typeof ApiMeRoute
-  ApiPricesRoute: typeof ApiPricesRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   TokensTokenIdRoute: typeof TokensTokenIdRoute
   ApiTokenTokenIdRoute: typeof ApiTokenTokenIdRoute
@@ -313,13 +300,6 @@ declare module '@tanstack/react-router' {
       path: '/demo/tanstack-query'
       fullPath: '/demo/tanstack-query'
       preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/prices': {
-      id: '/api/prices'
-      path: '/api/prices'
-      fullPath: '/api/prices'
-      preLoaderRoute: typeof ApiPricesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/me': {
@@ -434,7 +414,6 @@ const rootRouteChildren: RootRouteChildren = {
   UiDemoRoute: UiDemoRoute,
   ApiAssetsRoute: ApiAssetsRouteWithChildren,
   ApiMeRoute: ApiMeRoute,
-  ApiPricesRoute: ApiPricesRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   TokensTokenIdRoute: TokensTokenIdRoute,
   ApiTokenTokenIdRoute: ApiTokenTokenIdRoute,

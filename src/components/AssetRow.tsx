@@ -24,11 +24,11 @@ export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpe
   }
 
   useEffect(() => {
-    ensureFeed(asset.id)
-    return () => releaseFeed(asset.id)
-  }, [asset.id])
+    ensureFeed(asset.mint)
+    return () => releaseFeed(asset.mint)
+  }, [asset.mint])
 
-  const live = useLiveToken(asset.id)
+  const live = useLiveToken(asset.mint)
   const price = live?.price ?? asset.price
   const liveValue = calcValueUsd(asset.amount, price)
   const livePnlUsd = calcUnrealized(asset.amount, price, asset.avgCostUsd) ?? asset.pnl

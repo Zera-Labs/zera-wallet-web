@@ -7,6 +7,7 @@ type Asset = {
   name: string
   symbol: string
   chain: string
+  mint: string
   price: number
   amount: number
   value: number
@@ -33,6 +34,7 @@ export const Route = createFileRoute('/api/assets')({
           name: h.name,
           symbol: h.symbol,
           chain: (h.chain || 'solana').toUpperCase().startsWith('SOL') ? 'SOL' : (h.chain || '').toUpperCase(),
+          mint: h.mint,
           price: h.priceUsd,
           amount: h.amount,
           value: h.valueUsd,
