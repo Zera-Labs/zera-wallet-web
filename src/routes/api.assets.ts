@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { portfolioService } from '@/lib/portfolio.service'
+import { listHoldings } from '@/lib/portfolio.service'
 import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
 
 type Asset = {
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/api/assets')({
         const user = await verifyRequestAndGetUser(request)
         const owner = getFirstSolanaAddressFromPrivyUser(user)
         if (!owner) return Response.json([])
-        const holdings = await portfolioService.listHoldings(owner)
+        const holdings = await listHoldings(owner)
         const rows: Asset[] = holdings.map((h) => ({
           id: h.symbol.toLowerCase(),
           name: h.name,

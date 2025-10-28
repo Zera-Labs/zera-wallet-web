@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { portfolioService } from '@/lib/portfolio.service'
+import { getHoldingBySymbol } from '@/lib/portfolio.service'
 import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
 
 type TokenMeta = {
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/api/token/$tokenId')({
         const owner = getFirstSolanaAddressFromPrivyUser(user)
         const symbol = params.tokenId
         if (owner) {
-          const holding = await portfolioService.getHoldingBySymbol(owner, symbol)
+          const holding = await getHoldingBySymbol(owner, symbol)
           if (holding) {
             const meta: TokenMeta = {
               id: symbol,

@@ -22,17 +22,9 @@ function App() {
   const [isHidden, setIsHidden] = React.useState(false)
   
   // Compute portfolio composition by category (ZERA, ETH, SOL, Other).
-  // Falls back to dummy values if asset data is empty.
   const composition = React.useMemo(() => {
     if (!assets?.length) {
-      const dummy = [
-        { key: 'ZERA', label: 'ZERA', value: 350000, color: 'var(--brand-green-500)' },
-        { key: 'ETH', label: 'ETH', value: 120000, color: 'var(--vb-500)' },
-        { key: 'SOL', label: 'SOL', value: 60000, color: 'var(--cpink-500)' },
-        { key: 'Other', label: 'Other', value: 45000, color: 'var(--subdued-500)' },
-      ]
-      const total = dummy.reduce((s, c) => s + c.value, 0)
-      return { items: dummy.sort((a, b) => b.value - a.value), total }
+      return { items: [], total: 0 }
     }
 
     const sumBy = (symbol: string) => assets
@@ -58,8 +50,7 @@ function App() {
   }, [assets])
 
   const totalDisplay = React.useMemo(() => {
-    const total = composition.total || 0
-    return total > 0 ? total : 575000
+    return composition.total || 0
   }, [composition.total])
 
   return (
@@ -122,7 +113,7 @@ function App() {
                   </div>
                   {(() => {
                     const total = composition.total || totalDisplay
-                    const changeUsd = assets?.length ? assets.reduce((s, a) => s + (a.pnl ?? 0), 0) : totalDisplay * 0.028
+                    const changeUsd = assets?.length ? assets.reduce((s, a) => s + (a.pnl ?? 0), 0) : 0
                     const changePct = total > 0 ? (changeUsd / total) * 100 : 0
                     const positive = changeUsd >= 0
                     return (
