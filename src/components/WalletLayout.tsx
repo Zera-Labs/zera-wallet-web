@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Activity, Eye, Scale, Settings, Shield, CircleSlash } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 import {
@@ -19,6 +20,48 @@ type WalletLayoutProps = {
   children: React.ReactNode
 }
 
+function AuthControlsLoaded({ usePrivy }: { usePrivy: any }) {
+  const { authenticated, ready, login, logout } = usePrivy()
+  return (
+    <div className={cn('h-11 rounded-[12px] px-3 gap-3 mb-2', 'flex items-center justify-between')}>
+      <div className="text-sm text-[var(--text-tertiary)] truncate max-w-[140px]">
+        {ready ? (authenticated ? 'Connected' : 'Not signed in') : '...'}
+      </div>
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => {
+            if (authenticated) logout()
+            else login()
+          }}
+        >
+          {authenticated ? 'Logout' : 'Sign in'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function AuthControls() {
+  const [usePrivyHook, setUsePrivyHook] = React.useState<any | null>(null)
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    let mounted = true
+    ;(async () => {
+      try {
+        const mod = await import('@privy-io/react-auth')
+        if (mounted) setUsePrivyHook(() => (mod as any).usePrivy)
+      } catch {}
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+  if (!usePrivyHook) return null
+  return <AuthControlsLoaded usePrivy={usePrivyHook} />
+}
+
 export default function WalletLayout({ children }: WalletLayoutProps) {
   const topItems = [
     { key: 'overview', label: 'Overview', icon: Eye, to: '/' },
@@ -29,12 +72,15 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
   ] as const
 
   return (
-    <SidebarProvider>
+      <SidebarProvider>
       <Sidebar side="left" variant="sidebar" collapsible="icon">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <AuthControls />
+                </SidebarMenuItem>
                 {topItems.map(({ key, label, icon: Icon, to }) => (
                   <SidebarMenuItem key={key}>
                     <SidebarMenuButton
@@ -102,6 +148,7 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
