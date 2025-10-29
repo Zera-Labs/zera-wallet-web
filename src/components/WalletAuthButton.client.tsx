@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 //
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { usePrivy } from '@privy-io/react-auth'
+import UserSettingsModal from '@/components/UserSettingsModal.client'
 
 function shortenAddress(address: string) {
 	if (!address) return ''
@@ -87,6 +88,7 @@ export default function WalletAuthButtonClient() {
                     <DialogDescription className="text-sm">{label}</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-3 mt-4">
+                    <UserSettingsModal />
                     <Button
                         variant="default"
                         className="w-full h-11 rounded-[12px]"

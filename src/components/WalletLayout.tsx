@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sidebar'
 // Lazy-load the wallet auth button to avoid SSR importing client-only deps
 const WalletAuthButton = React.lazy(() => import('@/components/WalletAuthButton.client'))
+const UserSettingsModal = React.lazy(() => import('@/components/UserSettingsModal.client'))
 
 type WalletLayoutProps = {
   children: React.ReactNode
@@ -39,6 +40,13 @@ export default function WalletLayout({ children }: WalletLayoutProps) {
                 {typeof window !== 'undefined' ? (
                   <React.Suspense fallback={null}>
                     <WalletAuthButton />
+                  </React.Suspense>
+                ) : null}
+              </div>
+              <div className="mb-4">
+                {typeof window !== 'undefined' ? (
+                  <React.Suspense fallback={null}>
+                    <UserSettingsModal />
                   </React.Suspense>
                 ) : null}
               </div>
