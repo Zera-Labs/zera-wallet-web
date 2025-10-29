@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Button } from '@/components/ui/button'
+import { useNavigate } from '@tanstack/react-router'
 //
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { usePrivy } from '@privy-io/react-auth'
@@ -26,6 +27,7 @@ function getFirstSolanaAddress(user: any): string | undefined {
 
 export default function WalletAuthButtonClient() {
     const { ready, authenticated, login, logout, user } = usePrivy()
+    const navigate = useNavigate()
     const [open, setOpen] = React.useState(false)
 
 	const address = getFirstSolanaAddress(user)
@@ -88,9 +90,10 @@ export default function WalletAuthButtonClient() {
                     <Button
                         variant="default"
                         className="w-full h-11 rounded-[12px]"
-                        onClick={() => {
-                            try { logout?.() } catch {}
+                        onClick={async () => {
+                            try { await logout?.() } catch {}
                             setOpen(false)
+                            navigate({ to: '/login' })
                         }}
                     >
                         Log out

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UiDemoRouteImport } from './routes/ui-demo'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TokensTokenIdRouteImport } from './routes/tokens.$tokenId'
@@ -32,6 +33,11 @@ import { Route as ApiAssetsAssetIdTransactionsRouteImport } from './routes/api.a
 const UiDemoRoute = UiDemoRouteImport.update({
   id: '/ui-demo',
   path: '/ui-demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActivityRoute = ActivityRouteImport.update({
@@ -130,6 +136,7 @@ const ApiAssetsAssetIdTransactionsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/login': typeof LoginRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/login': typeof LoginRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
@@ -173,6 +181,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
+  '/login': typeof LoginRoute
   '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/activity'
+    | '/login'
     | '/ui-demo'
     | '/api/assets'
     | '/api/me'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/activity'
+    | '/login'
     | '/ui-demo'
     | '/api/assets'
     | '/api/me'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/activity'
+    | '/login'
     | '/ui-demo'
     | '/api/assets'
     | '/api/me'
@@ -260,6 +272,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
+  LoginRoute: typeof LoginRoute
   UiDemoRoute: typeof UiDemoRoute
   ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
   ApiMeRoute: typeof ApiMeRoute
@@ -284,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/ui-demo'
       fullPath: '/ui-demo'
       preLoaderRoute: typeof UiDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/activity': {
@@ -442,6 +462,7 @@ const ApiTokenTokenIdRouteWithChildren = ApiTokenTokenIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
+  LoginRoute: LoginRoute,
   UiDemoRoute: UiDemoRoute,
   ApiAssetsRoute: ApiAssetsRouteWithChildren,
   ApiMeRoute: ApiMeRoute,

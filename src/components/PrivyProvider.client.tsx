@@ -1,5 +1,6 @@
 import * as React from 'react'
-import { PrivyProvider } from '@privy-io/react-auth'
+import { PrivyProvider, usePrivy } from '@privy-io/react-auth'
+import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana'
 import { createSolanaRpc, createSolanaRpcSubscriptions } from '@solana/kit'
 
@@ -27,7 +28,7 @@ export default function ClientPrivyProvider({ children }: Props) {
   return (
     <PrivyProvider
       appId={appId}
-      clientId={clientId}
+      {...(clientId ? { clientId } as const : {})}
       config={{
         appearance: {
           walletChainType: 'solana-only',
@@ -44,9 +45,55 @@ export default function ClientPrivyProvider({ children }: Props) {
         externalWallets: { solana: { connectors } },
       }}
     >
-      {children}
+      <SessionGuard>
+        {children}
+      </SessionGuard>
     </PrivyProvider>
   )
 }
+function SessionGuard({ children }: { children: React.ReactNode }) {
+  const { ready, authenticated, logout, getAccessToken } = usePrivy() as any
+  const navigate = useNavigate()
+  const { location } = useRouterState()
+  const isLogin = location.pathname === '/login'
+  const hasCheckedRef = React.useRef(false)
+  const handlingRef = React.useRef(false)
+
+  React.useEffect(() => {
+    if (!ready || isLogin) return
+    if (hasCheckedRef.current) return
+    hasCheckedRef.current = true
+    let cancelled = false
+    const check = async () => {
+      try {
+        const headerToken = (await getAccessToken?.()) || undefined
+        const res = await fetch('/api/me', {
+          credentials: 'include',
+          cache: 'no-store',
+          headers: headerToken ? { Authorization: `Bearer ${headerToken}` } : undefined,
+        })
+        if (!cancelled && !res.ok && !handlingRef.current) {
+          handlingRef.current = true
+          try {
+            if (authenticated) {
+              await logout()
+            }
+          } finally {
+            navigate({ to: '/login' })
+          }
+        }
+      } catch {
+        // Ignore network errors; gate will catch on navigation
+      }
+    }
+    check()
+    return () => {
+      cancelled = true
+    }
+  }, [ready, isLogin, authenticated, logout, navigate])
+
+  return <>{children}</>
+}
+
 
 

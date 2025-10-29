@@ -29,10 +29,13 @@ export const Route = createFileRoute('/api/token/$tokenId/asset')({
             return new Response(`Helius DAS error ${res.status}: ${body}`, { status: 502 })
           }
 
-          const files: Array<{ uri?: string; cdn_uri?: string; mime?: string }> = res.data?.result?.content?.files ?? []
+          const content = res.data?.result?.content
+          const files: Array<{ uri?: string; cdn_uri?: string; mime?: string }> = content?.files ?? []
           const firstImage = files.find((f) => typeof f?.mime === 'string' && f.mime.startsWith('image/'))
           const image = firstImage?.cdn_uri || firstImage?.uri || null
-          return Response.json({ image })
+          const name: string | undefined = content?.metadata?.name || content?.metadata?.symbol
+          const symbol: string | undefined = content?.metadata?.symbol || content?.metadata?.name
+          return Response.json({ image, name, symbol })
         } catch (err: any) {
           const msg = err?.message || 'axios error'
           return new Response(`Helius axios error: ${msg}`, { status: 502 })
