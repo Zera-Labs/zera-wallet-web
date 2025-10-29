@@ -1,7 +1,7 @@
 // Using Helius Enhanced Transactions API to fetch history and parsed transfers
 import axios from 'axios'
 
-export type TransactionsResponse = {
+export type SolanaTransactionsResponse = {
   transactions: Array<{
     transaction_hash: string
     status:
@@ -19,6 +19,7 @@ export type TransactionsResponse = {
       type: 'transfer_sent' | 'transfer_received'
       chain: string
       asset: string // 'sol' or mint address for SPL
+      mint: string
       sender: string
       recipient: string
       raw_value: string // lamports for SOL; raw token amount (no decimals) for SPL
@@ -27,6 +28,15 @@ export type TransactionsResponse = {
     }
   }>
   next_cursor: string | null
+}
+
+export type HeliusTokenTransfer = {
+  mint?: string
+  fromUserAccount?: string
+  toUserAccount?: string
+  tokenAmount?: string | number
+  amount?: string | number
+  decimals?: number
 }
 
 type HeliusTransaction = {
@@ -38,14 +48,7 @@ type HeliusTransaction = {
     toUserAccount?: string
     amount?: number // lamports
   }>
-  tokenTransfers?: Array<{
-    mint?: string
-    fromUserAccount?: string
-    toUserAccount?: string
-    tokenAmount?: string | number // may be raw or ui per provider variant
-    amount?: string | number
-    decimals?: number
-  }>
+  tokenTransfers?: HeliusTokenTransfer[]
   events?: any
 }
 
@@ -79,8 +82,8 @@ export async function fetchHeliusAddressTransactions(address: string, params: { 
   }
 }
 
-function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): TransactionsResponse['transactions'][number][] {
-  const results: TransactionsResponse['transactions'][number][] = []
+function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): SolanaTransactionsResponse['transactions'][number][] {
+  const results: SolanaTransactionsResponse['transactions'][number][] = []
 
   // 1) All native SOL transfers involving the address
   const natives = (tx.nativeTransfers || []).filter(nt => nt && (nt.fromUserAccount === address || nt.toUserAccount === address) && (nt.amount ?? 0) !== 0)
@@ -96,6 +99,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
         type: sent ? 'transfer_sent' : 'transfer_received',
         chain: 'solana',
         asset: 'sol',
+        mint: 'sol11111111111111111111111111111111111111112',
         sender: native.fromUserAccount || '',
         recipient: native.toUserAccount || '',
         raw_value: String(native.amount),
@@ -120,6 +124,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
           type: sent ? 'transfer_sent' : 'transfer_received',
           chain: 'solana',
           asset: 'sol',
+          mint: 'sol11111111111111111111111111111111111111112',
           sender: solEvent.from || '',
           recipient: solEvent.to || '',
           raw_value: String(lamports),
@@ -131,7 +136,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
   }
 
   // 3) All SPL token transfers involving the address (e.g., swaps)
-  const tokenList: any[] = (tx.tokenTransfers || (tx as any).events?.tokenTransfers || (tx as any).events?.fungibleTokenTransfers || [])
+  const tokenList = (tx.tokenTransfers || (tx as any).events?.tokenTransfers || (tx as any).events?.fungibleTokenTransfers || []) as HeliusTokenTransfer[]
   const tokenTransfers = tokenList.filter((tt) => tt && (tt.fromUserAccount === address || tt.toUserAccount === address))
   for (const token of tokenTransfers) {
     const inputDecimals = typeof token.decimals === 'number' ? token.decimals : undefined
@@ -162,6 +167,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
         type: sent ? 'transfer_sent' : 'transfer_received',
         chain: 'solana',
         asset: String(token.mint || 'spl'),
+        mint: token.mint || '',
         sender: token.fromUserAccount || '',
         recipient: token.toUserAccount || '',
         raw_value: absRaw,
@@ -176,25 +182,27 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
 
 export async function getTransactionsForAddress(
   address: string,
-  limit = 25,
+  limit = 100,
   opts?: { before?: string; fetchAll?: boolean; maxPages?: number; dropZero?: boolean }
-): Promise<TransactionsResponse> {
-  // Fetch Helius transactions with pagination
-  const pageLimit = Math.min(10, Math.max(1, limit))
-  const maxPages = Math.max(1, opts?.maxPages ?? (opts?.fetchAll ? 100 : 1))
+): Promise<SolanaTransactionsResponse> {
+  // Fetch Helius transactions until we reach the requested total limit
+  const totalTarget = Math.max(1, limit)
+  const maxPages = Math.max(1, opts?.maxPages ?? 100)
+  const perRequestCap = 100 // conservative per-request cap for Helius endpoint
   let before = opts?.before
   const heliusTxs: HeliusTransaction[] = []
-  for (let page = 0; page < maxPages; page++) {
+  for (let page = 0; page < maxPages && heliusTxs.length < totalTarget; page++) {
+    const remaining = totalTarget - heliusTxs.length
+    const pageLimit = Math.min(perRequestCap, remaining)
     const batch = await fetchHeliusAddressTransactions(address, { before, limit: pageLimit })
     if (!Array.isArray(batch) || batch.length === 0) break
     heliusTxs.push(...batch)
     before = batch[batch.length - 1]?.signature
-    if (!opts?.fetchAll) break
     if (batch.length < pageLimit) break
   }
 
   // Map to our response shape
-  const out: Array<TransactionsResponse['transactions'][number]> = []
+  const out: Array<SolanaTransactionsResponse['transactions'][number]> = []
   for (const t of heliusTxs) {
     const mappedList = mapHeliusTxToDetails(address, t)
     if (!mappedList || mappedList.length === 0) {
@@ -208,6 +216,7 @@ export async function getTransactionsForAddress(
             type: 'transfer_received',
             chain: 'solana',
             asset: 'sol',
+            mint: 'sol11111111111111111111111111111111111111112',
             sender: '',
             recipient: '',
             raw_value: '0',
@@ -226,16 +235,8 @@ export async function getTransactionsForAddress(
     }
   }
 
-  // Deduplicate by transaction_hash: prefer SPL over SOL when both exist
-  function pickBetter(existing: TransactionsResponse['transactions'][number], candidate: TransactionsResponse['transactions'][number]) {
-    const exIsSol = existing.details.asset.toLowerCase() === 'sol'
-    const caIsSol = candidate.details.asset.toLowerCase() === 'sol'
-    if (exIsSol && !caIsSol) return candidate
-    if (!exIsSol && caIsSol) return existing
-    const exRecv = existing.details.type === 'transfer_received'
-    const caRecv = candidate.details.type === 'transfer_received'
-    if (!exRecv && caRecv) return candidate
-    if (exRecv && !caRecv) return existing
+  // Deduplicate by transaction_hash + asset + type so we keep both directions and assets
+  function pickBetter(existing: SolanaTransactionsResponse['transactions'][number], candidate: SolanaTransactionsResponse['transactions'][number]) {
     try {
       const exRaw = BigInt(existing.details.raw_value)
       const caRaw = BigInt(candidate.details.raw_value)
@@ -243,14 +244,14 @@ export async function getTransactionsForAddress(
     } catch {}
     return existing
   }
-  const seenByHash = new Map<string, TransactionsResponse['transactions'][number]>()
+  const seen = new Map<string, SolanaTransactionsResponse['transactions'][number]>()
   for (const item of out) {
-    const key = item.transaction_hash
-    const existing = seenByHash.get(key)
-    if (!existing) { seenByHash.set(key, item); continue }
-    seenByHash.set(key, pickBetter(existing, item))
+    const key = `${item.transaction_hash}|${item.details.asset.toLowerCase()}|${item.details.type}`
+    const existing = seen.get(key)
+    if (!existing) { seen.set(key, item); continue }
+    seen.set(key, pickBetter(existing, item))
   }
-  const deduped = Array.from(seenByHash.values())
+  const deduped = Array.from(seen.values())
 
   const nextCursor = heliusTxs.length > 0 ? String(heliusTxs[heliusTxs.length - 1].signature) : null
   return { transactions: deduped, next_cursor: nextCursor }

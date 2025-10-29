@@ -35,7 +35,7 @@ export const Route = createFileRoute('/api/assets')({
           name: h.name,
           symbol: h.symbol,
           chain: (h.chain || 'solana').toUpperCase().startsWith('SOL') ? 'SOL' : (h.chain || '').toUpperCase(),
-          mint: h.mint,
+          mint: h.mint.toLowerCase(),
           price: h.priceUsd,
           amount: h.amount,
           value: h.valueUsd,

@@ -15,7 +15,7 @@ export const Route = createFileRoute('/api/wallets/$walletId/transactions')({
         if (!owner || owner !== params.walletId) {
           return new Response('Forbidden', { status: 403 })
         }
-        const data = await getTransactionsForAddress(params.walletId, 1000, { fetchAll: true, maxPages: 100, dropZero: false })
+        const data = await getTransactionsForAddress(params.walletId, 40, { fetchAll: true, maxPages: 100, dropZero: false })
         return Response.json(data)
       },
     },
