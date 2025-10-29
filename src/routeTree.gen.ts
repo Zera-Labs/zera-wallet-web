@@ -9,32 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as UiDemoRouteImport } from './routes/ui-demo'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TokensTokenIdRouteImport } from './routes/tokens.$tokenId'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as ApiMeRouteImport } from './routes/api.me'
 import { Route as ApiAssetsRouteImport } from './routes/api.assets'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoApiTqTodosRouteImport } from './routes/demo/api.tq-todos'
-import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
 import { Route as ApiTokenTokenIdRouteImport } from './routes/api.token.$tokenId'
-import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
-import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
-import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 import { Route as ApiWalletsWalletIdTransactionsRouteImport } from './routes/api.wallets.$walletId.transactions'
 import { Route as ApiTokenTokenIdAssetRouteImport } from './routes/api.token.$tokenId.asset'
 import { Route as ApiAssetsAssetIdTransactionsRouteImport } from './routes/api.assets.$assetId.transactions'
 
-const UiDemoRoute = UiDemoRouteImport.update({
-  id: '/ui-demo',
-  path: '/ui-demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -55,11 +40,6 @@ const TokensTokenIdRoute = TokensTokenIdRouteImport.update({
   path: '/tokens/$tokenId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiMeRoute = ApiMeRouteImport.update({
   id: '/api/me',
   path: '/api/me',
@@ -70,49 +50,9 @@ const ApiAssetsRoute = ApiAssetsRouteImport.update({
   path: '/api/assets',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiTqTodosRoute = DemoApiTqTodosRouteImport.update({
-  id: '/demo/api/tq-todos',
-  path: '/demo/api/tq-todos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
-  id: '/demo/api/names',
-  path: '/demo/api/names',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiTokenTokenIdRoute = ApiTokenTokenIdRouteImport.update({
   id: '/api/token/$tokenId',
   path: '/api/token/$tokenId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
-  id: '/demo/start/ssr/',
-  path: '/demo/start/ssr/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
-  id: '/demo/start/ssr/spa-mode',
-  path: '/demo/start/ssr/spa-mode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
-  id: '/demo/start/ssr/full-ssr',
-  path: '/demo/start/ssr/full-ssr',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
-  id: '/demo/start/ssr/data-only',
-  path: '/demo/start/ssr/data-only',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiWalletsWalletIdTransactionsRoute =
@@ -137,68 +77,38 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
-  '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRouteWithChildren
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
   '/api/token/$tokenId/asset': typeof ApiTokenTokenIdAssetRoute
   '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
-  '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRouteWithChildren
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
   '/api/token/$tokenId/asset': typeof ApiTokenTokenIdAssetRoute
   '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
-  '/ui-demo': typeof UiDemoRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
   '/api/token/$tokenId': typeof ApiTokenTokenIdRouteWithChildren
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
   '/api/token/$tokenId/asset': typeof ApiTokenTokenIdAssetRoute
   '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -206,99 +116,52 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
-    | '/ui-demo'
     | '/api/assets'
     | '/api/me'
-    | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
-    | '/demo/api/names'
-    | '/demo/api/tq-todos'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
     | '/api/token/$tokenId/asset'
     | '/api/wallets/$walletId/transactions'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/activity'
     | '/login'
-    | '/ui-demo'
     | '/api/assets'
     | '/api/me'
-    | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
-    | '/demo/api/names'
-    | '/demo/api/tq-todos'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
     | '/api/token/$tokenId/asset'
     | '/api/wallets/$walletId/transactions'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
   id:
     | '__root__'
     | '/'
     | '/activity'
     | '/login'
-    | '/ui-demo'
     | '/api/assets'
     | '/api/me'
-    | '/demo/tanstack-query'
     | '/tokens/$tokenId'
     | '/api/token/$tokenId'
-    | '/demo/api/names'
-    | '/demo/api/tq-todos'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
     | '/api/token/$tokenId/asset'
     | '/api/wallets/$walletId/transactions'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   LoginRoute: typeof LoginRoute
-  UiDemoRoute: typeof UiDemoRoute
   ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
   ApiMeRoute: typeof ApiMeRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   TokensTokenIdRoute: typeof TokensTokenIdRoute
   ApiTokenTokenIdRoute: typeof ApiTokenTokenIdRouteWithChildren
-  DemoApiNamesRoute: typeof DemoApiNamesRoute
-  DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
   ApiWalletsWalletIdTransactionsRoute: typeof ApiWalletsWalletIdTransactionsRoute
-  DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
-  DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
-  DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
-  DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/ui-demo': {
-      id: '/ui-demo'
-      path: '/ui-demo'
-      fullPath: '/ui-demo'
-      preLoaderRoute: typeof UiDemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -327,13 +190,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TokensTokenIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/me': {
       id: '/api/me'
       path: '/api/me'
@@ -348,67 +204,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAssetsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/tq-todos': {
-      id: '/demo/api/tq-todos'
-      path: '/demo/api/tq-todos'
-      fullPath: '/demo/api/tq-todos'
-      preLoaderRoute: typeof DemoApiTqTodosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/api/names': {
-      id: '/demo/api/names'
-      path: '/demo/api/names'
-      fullPath: '/demo/api/names'
-      preLoaderRoute: typeof DemoApiNamesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/token/$tokenId': {
       id: '/api/token/$tokenId'
       path: '/api/token/$tokenId'
       fullPath: '/api/token/$tokenId'
       preLoaderRoute: typeof ApiTokenTokenIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/': {
-      id: '/demo/start/ssr/'
-      path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr'
-      preLoaderRoute: typeof DemoStartSsrIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/spa-mode': {
-      id: '/demo/start/ssr/spa-mode'
-      path: '/demo/start/ssr/spa-mode'
-      fullPath: '/demo/start/ssr/spa-mode'
-      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/full-ssr': {
-      id: '/demo/start/ssr/full-ssr'
-      path: '/demo/start/ssr/full-ssr'
-      fullPath: '/demo/start/ssr/full-ssr'
-      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/start/ssr/data-only': {
-      id: '/demo/start/ssr/data-only'
-      path: '/demo/start/ssr/data-only'
-      fullPath: '/demo/start/ssr/data-only'
-      preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/wallets/$walletId/transactions': {
@@ -463,21 +263,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   LoginRoute: LoginRoute,
-  UiDemoRoute: UiDemoRoute,
   ApiAssetsRoute: ApiAssetsRouteWithChildren,
   ApiMeRoute: ApiMeRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   TokensTokenIdRoute: TokensTokenIdRoute,
   ApiTokenTokenIdRoute: ApiTokenTokenIdRouteWithChildren,
-  DemoApiNamesRoute: DemoApiNamesRoute,
-  DemoApiTqTodosRoute: DemoApiTqTodosRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
   ApiWalletsWalletIdTransactionsRoute: ApiWalletsWalletIdTransactionsRoute,
-  DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
-  DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
-  DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
-  DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
