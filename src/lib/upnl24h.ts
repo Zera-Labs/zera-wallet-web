@@ -105,33 +105,14 @@ export function computeUnrealisedUpnl24h(
   for (const a of assets) {
     const price = pricesByMint[a.mint]
     const p1 = price?.summary?.price_usd
-    const dp24Raw = price?.summary?.['24h']?.last_price_usd_change
-    if (dp24Raw == null) {
-      console.log('[UPNL24H] missing raw 24h delta', {
-        mint: a.mint,
-        priceSummary24h: price?.summary?.['24h'],
-      })
-    }
     const dp24 = approx24hDelta(price)
     if (typeof p1 !== 'number' || typeof dp24 !== 'number') {
-      console.log('[UPNL24H] excluding token due to missing price or 24h delta', {
-        mint: a.mint,
-        p1,
-        dp24Raw,
-        approxDp24: dp24,
-      })
       excluded.push({ mint: a.mint, reason: 'price_missing_24h' })
       continue
     }
 
     // Sanity-check: skip obviously broken deltas (e.g., delta larger than current price by a wide margin)
     if (!isFinite(dp24) || Math.abs(dp24) > Math.max(Math.abs(p1) * 0.9, 2)) {
-      console.log('[UPNL24H] rejecting 24h delta via sanity check', {
-        mint: a.mint,
-        p1,
-        dp24,
-        threshold: Math.max(Math.abs(p1) * 0.9, 2),
-      })
       excluded.push({ mint: a.mint, reason: 'price_missing_24h' })
       continue
     }

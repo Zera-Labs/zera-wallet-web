@@ -1,37 +1,16 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { useTransactions } from '@/hooks/useTransactions'
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { usePrivy } from '@privy-io/react-auth'
-import { Send, Download, Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { TransactionsTable, type TxRow } from '@/components/TransactionsTable'
 
 export const Route = createFileRoute('/activity')({
   component: ActivityPage,
 })
 
-function formatDate(ts: number) {
-  const d = new Date(ts)
-  return d.toLocaleString(undefined, {
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-function truncateMiddle(value: string, maxLength = 16) {
-  if (value.length <= maxLength) return value
-  const keep = Math.floor((maxLength - 1) / 2)
-  return `${value.slice(0, keep)}…${value.slice(-keep)}`
-}
-
-function shortAddress(addr: string) {
-  if (!addr) return ''
-  return `${addr.slice(0, 5)}...${addr.slice(-4)}`
-}
+// table rendering moved to TransactionsTable component
 
 function ActivityPage() {
   const { user } = usePrivy()
@@ -108,106 +87,28 @@ function ActivityPage() {
             </select>
           </div>
         </div>
-        <Table className="text-[15px]">
-          <colgroup>
-            <col className="w-[20%]" />
-            <col className="w-[20%]" />
-            <col className="w-[20%]" />
-            <col className="w-[20%]" />
-            <col className="w-[20%]" />
-          </colgroup>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Type</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Timestamp</TableHead>
-              <TableHead>Signature</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell className="py-6" colSpan={6}>Loading...</TableCell>
-              </TableRow>
-            ) : pageRows.length === 0 ? (
-              <TableRow>
-                <TableCell className="py-6" colSpan={6}>No activity yet</TableCell>
-              </TableRow>
-            ) : (
-              pageRows.map((t) => {
-                const sent = t.details.type === 'transfer_sent'
-                const symbol = t.details.asset.toUpperCase()
-                const fullDisplay = t.details.display_values[symbol.toLowerCase()] ?? Object.values(t.details.display_values)[0] ?? ''
-                const truncatedDisplay = truncateMiddle(fullDisplay, 18)
-                const counterparty = sent ? t.details.recipient : t.details.sender
-                const statusLabel = t.status.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
-                return (
-                  <TableRow key={t.privy_transaction_id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Badge variant="icon">
-                          {sent ? <Send /> : <Download />}
-                        </Badge>
-                        <span className="text-[var(--text-primary)]">{sent ? 'Sent' : 'Received'}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <div className={sent ? 'text-red-300' : 'text-green-300'}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">
-                                {sent ? '-' : '+'}{truncatedDisplay} {symbol}
-                              </span>
-                            </TooltipTrigger>
-                            {fullDisplay && fullDisplay.length > truncatedDisplay.length && (
-                              <TooltipContent sideOffset={6}>{fullDisplay} {symbol}</TooltipContent>
-                            )}
-                          </Tooltip>
-                        </div>
-                        <div className="text-[13px] text-[var(--text-tertiary)]">
-                          {shortAddress(counterparty)}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="tx" status={t.status as any} className="gap-1.5">
-                        {t.status === 'pending' && (
-                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3.5">
-                            <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.75" />
-                            <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {t.status === 'confirmed' && (
-                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3.5">
-                            <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.75" />
-                            <path d="M9.5 12.5l2 2 3.5-4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {(t.status === 'failed' || t.status === 'execution_reverted' || t.status === 'provider_error') && (
-                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3.5">
-                            <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.75" />
-                            <path d="M9.5 9.5l5 5M14.5 9.5l-5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {(t.status === 'broadcasted' || t.status === 'replaced' || t.status === 'finalized') && (
-                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-3.5">
-                            <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.75" />
-                            <path d="M8.5 12h7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                        {statusLabel}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatDate(t.created_at)}</TableCell>
-                    <TableCell className="font-mono text-[13px] opacity-80">{t.transaction_hash.slice(0, 10)}…</TableCell>
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
+        {isLoading ? (
+          <div className="py-6">Loading...</div>
+        ) : (
+          <TransactionsTable
+            rows={pageRows.map<TxRow>((t) => {
+              const sent = t.details.type === 'transfer_sent'
+              const symbol = t.details.asset.toUpperCase()
+              const fullDisplay = t.details.display_values[symbol.toLowerCase()] ?? Object.values(t.details.display_values)[0] ?? ''
+              const counterparty = sent ? t.details.recipient : t.details.sender
+              return {
+                key: t.privy_transaction_id,
+                type: sent ? 'sent' : 'received',
+                symbol,
+                amountDisplay: fullDisplay,
+                status: t.status,
+                createdAt: t.created_at,
+                signature: t.transaction_hash,
+                counterparty,
+              }
+            })}
+          />
+        )}
         <div className="mt-4 flex items-center justify-between text-sm text-[var(--text-tertiary)]">
           <div>
             Showing {filtered.length === 0 ? 0 : start + 1}-{Math.min(end, filtered.length)} of {filtered.length}

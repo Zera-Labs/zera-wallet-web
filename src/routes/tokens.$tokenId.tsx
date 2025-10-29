@@ -1,10 +1,13 @@
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { useTokenMeta, useTokenTxs } from '@/hooks/useToken'
+import { useTokenMeta } from '@/hooks/useToken'
+import { useTransactions } from '@/hooks/useTransactions'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Table } from '@/components/ui/table'
+import { TransactionsTable, type TxRow } from '@/components/TransactionsTable'
 import { Button } from '@/components/ui/button'
 import { useEffect, useMemo } from 'react'
+import { usePrivy } from '@privy-io/react-auth'
 import { useLiveToken, ensureFeed, releaseFeed } from '@/stores/tokenFeed'
 import { ArrowUp, ArrowDown, ArrowLeftRight, CircleEllipsis } from 'lucide-react'
 import PerformanceChart from '@/components/PerformanceChart'
@@ -25,7 +28,12 @@ function TokenPage() {
 
   const { data: meta } = useTokenMeta(tokenId)
 
-  const { data: txs = [] } = useTokenTxs(tokenId)
+  const { user } = usePrivy()
+  const walletId = (user as any)?.wallets?.find((w: any) => w?.chainType === 'solana' || w?.chain === 'solana')?.address
+    ?? (user as any)?.linkedAccounts?.find((a: any) => a?.type === 'wallet' && (a?.chainType === 'solana' || a?.chain === 'solana'))?.address
+    ?? 'unknown-wallet'
+  const { data: allTxs } = useTransactions(walletId)
+  const rows = allTxs?.transactions ?? []
 
   const price = live?.summary?.price_usd ?? meta?.price
   const pnlPercent = useMemo(() => {
@@ -74,31 +82,33 @@ function TokenPage() {
 
       <section className="py-2">
         <h3 className="text-lg font-semibold mb-3">Transactions</h3>
-        <Table>
-          <colgroup>
-            <col className="w-[70%]" />
-            <col className="w-[30%]" />
-          </colgroup>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Swap</TableHead>
-              <TableHead>Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {txs.map((t) => (
-              <TableRow key={t.id}>
-                <TableCell className="tabular-nums">
-                  {t.fromSymbol} → {t.toSymbol}
-                  <span className="ml-2 text-[color:color-mix(in srgb,var(--text-primary) 50%,transparent)]">
-                    {t.fromValue.toLocaleString()} → {t.toValue.toLocaleString()}
-                  </span>
-                </TableCell>
-                <TableCell>{new Date(t.at).toLocaleString()}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <TransactionsTable
+          rows={rows
+            .filter((t) => {
+              const asset = String(t?.details?.asset || '').toLowerCase()
+              if (tokenId.toLowerCase() === 'sol') return asset === 'sol'
+              const mint = String((meta as any)?.mint || '').toLowerCase()
+              if (mint) return asset === mint
+              // fallback: if tokenId looks like a mint, accept it
+              return asset === tokenId.toLowerCase()
+            })
+            .map<TxRow>((t) => {
+              const sent = t.details.type === 'transfer_sent'
+              const symbol = t.details.asset.toUpperCase()
+              const fullDisplay = t.details.display_values[symbol.toLowerCase()] ?? Object.values(t.details.display_values)[0] ?? ''
+              const counterparty = sent ? t.details.recipient : t.details.sender
+              return {
+                key: t.privy_transaction_id,
+                type: sent ? 'sent' : 'received',
+                symbol,
+                amountDisplay: fullDisplay,
+                status: t.status,
+                createdAt: t.created_at,
+                signature: t.transaction_hash,
+                counterparty,
+              }
+            })}
+        />
       </section>
     </div>
   )

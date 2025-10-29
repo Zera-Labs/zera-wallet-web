@@ -26,6 +26,7 @@ import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr
 import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
 import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
 import { Route as ApiWalletsWalletIdTransactionsRouteImport } from './routes/api.wallets.$walletId.transactions'
+import { Route as ApiTokenTokenIdAssetRouteImport } from './routes/api.token.$tokenId.asset'
 import { Route as ApiAssetsAssetIdTransactionsRouteImport } from './routes/api.assets.$assetId.transactions'
 
 const UiDemoRoute = UiDemoRouteImport.update({
@@ -114,6 +115,11 @@ const ApiWalletsWalletIdTransactionsRoute =
     path: '/api/wallets/$walletId/transactions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiTokenTokenIdAssetRoute = ApiTokenTokenIdAssetRouteImport.update({
+  id: '/asset',
+  path: '/asset',
+  getParentRoute: () => ApiTokenTokenIdRoute,
+} as any)
 const ApiAssetsAssetIdTransactionsRoute =
   ApiAssetsAssetIdTransactionsRouteImport.update({
     id: '/$assetId/transactions',
@@ -129,12 +135,13 @@ export interface FileRoutesByFullPath {
   '/api/me': typeof ApiMeRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
-  '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
+  '/api/token/$tokenId': typeof ApiTokenTokenIdRouteWithChildren
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
+  '/api/token/$tokenId/asset': typeof ApiTokenTokenIdAssetRoute
   '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -149,12 +156,13 @@ export interface FileRoutesByTo {
   '/api/me': typeof ApiMeRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
-  '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
+  '/api/token/$tokenId': typeof ApiTokenTokenIdRouteWithChildren
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
+  '/api/token/$tokenId/asset': typeof ApiTokenTokenIdAssetRoute
   '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -170,12 +178,13 @@ export interface FileRoutesById {
   '/api/me': typeof ApiMeRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
-  '/api/token/$tokenId': typeof ApiTokenTokenIdRoute
+  '/api/token/$tokenId': typeof ApiTokenTokenIdRouteWithChildren
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
   '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
   '/api/assets/$assetId/transactions': typeof ApiAssetsAssetIdTransactionsRoute
+  '/api/token/$tokenId/asset': typeof ApiTokenTokenIdAssetRoute
   '/api/wallets/$walletId/transactions': typeof ApiWalletsWalletIdTransactionsRoute
   '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
   '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
+    | '/api/token/$tokenId/asset'
     | '/api/wallets/$walletId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
+    | '/api/token/$tokenId/asset'
     | '/api/wallets/$walletId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/demo/start/api-request'
     | '/demo/start/server-funcs'
     | '/api/assets/$assetId/transactions'
+    | '/api/token/$tokenId/asset'
     | '/api/wallets/$walletId/transactions'
     | '/demo/start/ssr/data-only'
     | '/demo/start/ssr/full-ssr'
@@ -253,7 +265,7 @@ export interface RootRouteChildren {
   ApiMeRoute: typeof ApiMeRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   TokensTokenIdRoute: typeof TokensTokenIdRoute
-  ApiTokenTokenIdRoute: typeof ApiTokenTokenIdRoute
+  ApiTokenTokenIdRoute: typeof ApiTokenTokenIdRouteWithChildren
   DemoApiNamesRoute: typeof DemoApiNamesRoute
   DemoApiTqTodosRoute: typeof DemoApiTqTodosRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
@@ -386,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWalletsWalletIdTransactionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/token/$tokenId/asset': {
+      id: '/api/token/$tokenId/asset'
+      path: '/asset'
+      fullPath: '/api/token/$tokenId/asset'
+      preLoaderRoute: typeof ApiTokenTokenIdAssetRouteImport
+      parentRoute: typeof ApiTokenTokenIdRoute
+    }
     '/api/assets/$assetId/transactions': {
       id: '/api/assets/$assetId/transactions'
       path: '/$assetId/transactions'
@@ -408,6 +427,18 @@ const ApiAssetsRouteWithChildren = ApiAssetsRoute._addFileChildren(
   ApiAssetsRouteChildren,
 )
 
+interface ApiTokenTokenIdRouteChildren {
+  ApiTokenTokenIdAssetRoute: typeof ApiTokenTokenIdAssetRoute
+}
+
+const ApiTokenTokenIdRouteChildren: ApiTokenTokenIdRouteChildren = {
+  ApiTokenTokenIdAssetRoute: ApiTokenTokenIdAssetRoute,
+}
+
+const ApiTokenTokenIdRouteWithChildren = ApiTokenTokenIdRoute._addFileChildren(
+  ApiTokenTokenIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
@@ -416,7 +447,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiMeRoute: ApiMeRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   TokensTokenIdRoute: TokensTokenIdRoute,
-  ApiTokenTokenIdRoute: ApiTokenTokenIdRoute,
+  ApiTokenTokenIdRoute: ApiTokenTokenIdRouteWithChildren,
   DemoApiNamesRoute: DemoApiNamesRoute,
   DemoApiTqTodosRoute: DemoApiTqTodosRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,

@@ -45,4 +45,34 @@ export function useAssets(options?: Omit<UseQueryOptions<AssetRowData[], Error>,
   })
 }
 
+const AssetImageResponseSchema = z.object({ image: z.string().nullable().optional() })
+
+async function fetchAssetImage(
+  mint: string,
+  getAccessToken?: () => Promise<string | undefined>,
+): Promise<{ image?: string | null }> {
+  const token = (await getAccessToken?.()) || undefined
+  const res = await fetch(`/api/token/${encodeURIComponent(mint)}/asset`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
+  if (!res.ok) throw new Error('Failed to load asset image')
+  const json = await res.json()
+  return AssetImageResponseSchema.parse(json)
+}
+
+export function useAssetImage(
+  mint: string,
+  options?: Omit<UseQueryOptions<{ image?: string | null }, Error>, 'queryKey' | 'queryFn'>,
+) {
+  const { getAccessToken, ready, authenticated } = usePrivy()
+  return useQuery<{ image?: string | null }, Error>({
+    queryKey: ['assetImage', mint],
+    queryFn: () => fetchAssetImage(mint, async () => (await getAccessToken()) ?? undefined),
+    enabled: !!mint && !!ready && !!authenticated,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    ...options,
+  })
+}
+
 

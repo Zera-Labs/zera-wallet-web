@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { ensureFeed, releaseFeed, useLiveToken } from '@/stores/tokenFeed'
 import { valueUsd as calcValueUsd } from '@/lib/portfolio'
 import type { AssetRowData } from '@/hooks/useAssets'
+import { useAssetImage } from '@/hooks/useAssets'
 
 export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpen: () => void }) {
   const resolveIconSrc = (name: string): string | undefined => {
@@ -21,7 +22,7 @@ export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpe
   }, [asset.mint])
 
   const live = useLiveToken(asset.mint)
-  console.log('live', live)
+  const { data: assetImg } = useAssetImage(asset.mint)
   const name = live?.name ?? asset.name
   const price = live?.summary?.price_usd ?? asset.price
   let borderColor = 'border-[var(--brand-green-300)]'
@@ -38,7 +39,7 @@ export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpe
     <TableRow onClick={onOpen} className="cursor-pointer">
       <TableCell className="flex items-center gap-3">
         {(() => {
-          const src = resolveIconSrc(name)
+          const src = assetImg?.image || resolveIconSrc(name)
           return src ? (
             <img
               src={src}

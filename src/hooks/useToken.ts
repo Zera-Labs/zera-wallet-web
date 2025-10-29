@@ -35,8 +35,11 @@ async function fetchTokenMeta(tokenId: string, getAccessToken?: () => Promise<st
   return TokenMetaSchema.parse(json)
 }
 
-async function fetchTokenTxs(tokenId: string): Promise<Tx[]> {
-  const res = await fetch(`/api/assets/${tokenId}/transactions`)
+async function fetchTokenTxs(tokenId: string, getAccessToken?: () => Promise<string | undefined>): Promise<Tx[]> {
+  const token = (await getAccessToken?.()) || undefined
+  const res = await fetch(`/api/token/${tokenId}/transactions`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
   if (!res.ok) throw new Error('Failed to load txs')
   const json = await res.json()
   return TxsResponseSchema.parse(json)
@@ -54,9 +57,10 @@ export function useTokenMeta(tokenId: string, options?: Omit<UseQueryOptions<Tok
 }
 
 export function useTokenTxs(tokenId: string, options?: Omit<UseQueryOptions<Tx[], Error>, 'queryKey' | 'queryFn'>) {
+  const { getAccessToken } = usePrivy()
   return useQuery<Tx[], Error>({
     queryKey: ['tokenTxs', tokenId],
-    queryFn: () => fetchTokenTxs(tokenId),
+    queryFn: () => fetchTokenTxs(tokenId, getAccessToken as any),
     staleTime: 15_000,
     refetchOnWindowFocus: false,
     ...options,

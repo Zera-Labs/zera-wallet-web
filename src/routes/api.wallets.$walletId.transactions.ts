@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser, getSolanaWalletPrivyId } from '@/lib/privy.server'
-import { getWalletTransactions } from '@/lib/privy.rest'
+import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
 import { getTransactionsForAddress } from '@/lib/solana.transactions'
 
 export const Route = createFileRoute('/api/wallets/$walletId/transactions')({
@@ -16,13 +15,7 @@ export const Route = createFileRoute('/api/wallets/$walletId/transactions')({
         if (!owner || owner !== params.walletId) {
           return new Response('Forbidden', { status: 403 })
         }
-        const walletPrivyId = getSolanaWalletPrivyId(user, params.walletId)
-        if (walletPrivyId) {
-          const data = await getWalletTransactions(walletPrivyId)
-          return Response.json(data)
-        }
-        // Fallback: if Privy wallet id is null, fetch basic txs by address from Solana RPC
-        const data = await getTransactionsForAddress(params.walletId)
+        const data = await getTransactionsForAddress(params.walletId, 1000, { fetchAll: true, maxPages: 100, dropZero: false })
         return Response.json(data)
       },
     },

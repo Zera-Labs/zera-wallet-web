@@ -16,7 +16,6 @@ const TransactionDetailsSchema = z.object({
 })
 
 const TransactionSchema = z.object({
-  caip2: z.string(),
   transaction_hash: z.string(),
   status: z.enum([
     'broadcasted',
@@ -30,7 +29,6 @@ const TransactionSchema = z.object({
   ]),
   created_at: z.number(),
   privy_transaction_id: z.string(),
-  wallet_id: z.string(),
   details: TransactionDetailsSchema,
 })
 
