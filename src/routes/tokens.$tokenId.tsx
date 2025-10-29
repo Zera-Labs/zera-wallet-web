@@ -3,7 +3,6 @@ import { useTokenMeta } from '@/hooks/useToken'
 import { useTransactions } from '@/hooks/useTransactions'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Table } from '@/components/ui/table'
 import { TransactionsTable, type TxRow } from '@/components/TransactionsTable'
 import { Button } from '@/components/ui/button'
 import { useEffect, useMemo } from 'react'
@@ -92,13 +91,14 @@ function TokenPage() {
               // fallback: if tokenId looks like a mint, accept it
               return asset === tokenId.toLowerCase()
             })
+            .filter((t) => Number(t.details.raw_value) >= 100)
             .map<TxRow>((t) => {
               const sent = t.details.type === 'transfer_sent'
               const symbol = t.details.asset.toUpperCase()
               const fullDisplay = t.details.display_values[symbol.toLowerCase()] ?? Object.values(t.details.display_values)[0] ?? ''
               const counterparty = sent ? t.details.recipient : t.details.sender
               return {
-                key: t.privy_transaction_id,
+                key: t.transaction_id,
                 type: sent ? 'sent' : 'received',
                 symbol,
                 amountDisplay: fullDisplay,
@@ -106,6 +106,7 @@ function TokenPage() {
                 createdAt: t.created_at,
                 signature: t.transaction_hash,
                 counterparty,
+                rawValue: Number(t.details.raw_value),
               }
             })}
         />

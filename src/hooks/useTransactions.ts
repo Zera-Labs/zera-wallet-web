@@ -28,7 +28,7 @@ const TransactionSchema = z.object({
     'pending',
   ]),
   created_at: z.number(),
-  privy_transaction_id: z.string(),
+  transaction_id: z.string(),
   details: TransactionDetailsSchema,
 })
 

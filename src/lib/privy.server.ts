@@ -15,16 +15,47 @@ export function getPrivyClient() {
   return client
 }
 
-export async function verifyRequestAndGetUser(request: Request) {
-  const auth = request.headers.get('authorization') || request.headers.get('Authorization')
-  if (!auth?.startsWith('Bearer ')) {
-    throw new Response('Unauthorized', { status: 401 })
+function getCookie(name: string, cookieHeader: string | null): string | undefined {
+  if (!cookieHeader) return undefined
+  const parts = cookieHeader.split(';')
+  for (const raw of parts) {
+    const part = raw.trim()
+    const idx = part.indexOf('=')
+    if (idx <= 0) continue
+    const k = part.slice(0, idx).trim()
+    const v = part.slice(idx + 1)
+    if (k === name) return decodeURIComponent(v)
   }
-  const token = auth.slice('Bearer '.length)
+  return undefined
+}
+
+export async function verifyRequestAndGetUser(request: Request) {
   const privy = getPrivyClient()
-  const { userId } = await privy.verifyAuthToken(token)
-  const user = await privy.getUser(userId)
-  return user
+  const cookieHeader = request.headers.get('cookie') || request.headers.get('Cookie')
+  const idToken = getCookie('privy-id-token', cookieHeader) || getCookie('privy_id_token', cookieHeader)
+  if (idToken) {
+    try {
+      return await privy.getUser({ idToken })
+    } catch {
+      // fall through to header token check
+    }
+  }
+
+  // Fallback: support Authorization Bearer access token from client
+  const auth = request.headers.get('authorization') || request.headers.get('Authorization')
+  if (auth?.startsWith('Bearer ')) {
+    const token = auth.slice('Bearer '.length)
+    try {
+      // Prefer idToken path if a client supplies an id token via header
+      return await privy.getUser({ idToken: token })
+    } catch {}
+    try {
+      const { userId } = await privy.verifyAuthToken(token)
+      return await privy.getUserById(userId)
+    } catch {}
+  }
+
+  throw new Response('Unauthorized in privy.server.ts', { status: 401 })
 }
 
 export function getFirstSolanaAddressFromPrivyUser(user: any): string | undefined {

@@ -2,6 +2,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  useRouterState,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -22,6 +23,7 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
+  // Auth gating handled by Client PrivyProvider SessionGuard and route-level logic
   head: () => ({
     meta: [
       {
@@ -47,15 +49,19 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { location } = useRouterState()
+  const isLogin = location.pathname === '/login'
   const app = (
     <html lang="en">
     <head>
       <HeadContent />
     </head>
     <body>
-      <WalletLayout>
-        {children}
-      </WalletLayout>
+      {isLogin ? children : (
+        <WalletLayout>
+          {children}
+        </WalletLayout>
+      )}
       <TanStackDevtools
         config={{
           position: 'bottom-right',

@@ -1,4 +1,4 @@
-import * as React from 'react'
+ 
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
@@ -13,6 +13,7 @@ export type TxRow = {
   createdAt: number
   signature: string
   counterparty?: string
+  rawValue?: number
 }
 
 function truncateMiddle(value: string, maxLength = 18) {
@@ -39,7 +40,7 @@ function formatDate(ts: number) {
 
 export function TransactionsTable({ rows }: { rows: TxRow[] }) {
   return (
-    <Table className="text-[15px]">
+      <Table className="text-[15px]">
       <colgroup>
         <col className="w-[20%]" />
         <col className="w-[20%]" />
@@ -131,7 +132,7 @@ export function TransactionsTable({ rows }: { rows: TxRow[] }) {
           })
         )}
       </TableBody>
-    </Table>
+      </Table>
   )
 }
 
