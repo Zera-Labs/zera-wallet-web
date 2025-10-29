@@ -1,15 +1,10 @@
 import { create } from 'zustand'
-
-type LiveToken = {
-  id: string
-  price: number
-  pnl: number
-}
+import type { PriceMessageData } from '@/lib/priceSocket.schema'
 
 type State = {
-  tokens: Record<string, LiveToken | undefined>
+  tokens: Record<string, PriceMessageData | undefined>
   listeners: Record<string, number>
-  setToken: (id: string, data: LiveToken) => void
+  setToken: (id: string, data: PriceMessageData) => void
 }
 
 export const useTokenFeed = create<State>((set) => ({
@@ -23,12 +18,10 @@ export function useLiveToken(id: string) {
 }
 
 export function ensureFeed(id: string) {
-  const { listeners, setToken, tokens } = useTokenFeed.getState()
+  const { listeners } = useTokenFeed.getState()
   const count = (listeners[id] ?? 0) + 1
   useTokenFeed.setState({ listeners: { ...listeners, [id]: count } })
-  if (count > 1) return
-  const current = tokens[id] ?? { id, price: 0, pnl: 0 }
-  setToken(id, current)
+  // No-op beyond tracking listeners; token data will be populated by the websocket
 }
 
 export function releaseFeed(id: string) {

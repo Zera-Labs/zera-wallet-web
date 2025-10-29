@@ -27,14 +27,14 @@ function TokenPage() {
 
   const { data: txs = [] } = useTokenTxs(tokenId)
 
-  const price = live?.price ?? meta?.price
+  const price = live?.summary?.price_usd ?? meta?.price
   const pnlPercent = useMemo(() => {
     const avg = meta?.avgCostUsd
     if (avg != null && avg > 0 && price != null) {
       return ((price - avg) / avg) * 100
     }
-    return live?.pnl ?? meta?.pnl
-  }, [meta?.avgCostUsd, meta?.pnl, price, live?.pnl])
+    return meta?.pnl
+  }, [meta?.avgCostUsd, meta?.pnl, price])
 
   return (
     <div className="px-6 pb-16">
@@ -42,7 +42,7 @@ function TokenPage() {
         <div className="flex items-center gap-3 mb-3">
           <div className="size-11 rounded-full bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)]" />
           <div className="flex items-center gap-2 text-[17px] leading-8">
-            <span>{meta?.name ?? tokenId.toUpperCase()}</span>
+            <span>{live?.name ?? meta?.name ?? tokenId.toUpperCase()}</span>
             <Badge variant="secondary">{meta?.chain ?? '—'}</Badge>
           </div>
         </div>

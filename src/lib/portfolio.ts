@@ -39,4 +39,3 @@ export function unrealizedPnlUsd(amount: number, priceUsd: number, avgCostUsd?: 
   return Number(((priceUsd - avgCostUsd) * amount).toFixed(2))
 }
 
-

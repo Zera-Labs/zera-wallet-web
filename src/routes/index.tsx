@@ -10,6 +10,9 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import AssetRow from '@/components/AssetRow'
 import TransfersModal from '@/components/TransfersModal'
 import { usePriceSocket } from '@/hooks/usePriceSocket'
+import { useUser } from '@/hooks/useUser'
+import { useTransactions } from '@/hooks/useTransactions'
+import { computeUnrealisedUpnl24h } from '@/lib/upnl24h'
 import { useTokenFeed } from '@/stores/tokenFeed'
 
 export const Route = createFileRoute('/')({
@@ -19,14 +22,23 @@ export const Route = createFileRoute('/')({
 function App() {
   const navigate = useNavigate()
   const { data: assets = [], isLoading } = useAssets()
+  const { data: user } = useUser()
+  const walletId = React.useMemo(() => {
+    const acc = user?.linkedAccounts?.find((a: any) => a?.type === 'wallet' && a?.chainType === 'solana') as any
+    return acc?.address || ''
+  }, [user])
+  const { data: txResp } = useTransactions(walletId || '', { enabled: !!walletId })
+  const recentTxs = txResp?.transactions
   const mints = React.useMemo(() => Array.from(new Set((assets ?? []).map((a) => a.mint).filter(Boolean))), [assets])
   const pricesByMint = usePriceSocket(mints)
   React.useEffect(() => {
     const { setToken } = useTokenFeed.getState()
     for (const [mint, data] of Object.entries(pricesByMint)) {
-      const price = data?.summary?.price_usd
-      if (typeof price === 'number') {
-        setToken(mint, { id: mint, price, pnl: 0 })
+      
+      if (data.summary['24h']?.last_price_usd_change) {
+        setToken(mint, data)
+      } else {
+        setToken(mint, data)
       }
     }
   }, [pricesByMint])
@@ -34,33 +46,40 @@ function App() {
   const [transferMode, setTransferMode] = React.useState<'send' | 'receive'>('send')
   const [isHidden, setIsHidden] = React.useState(false)
   
-  // Compute portfolio composition by category (ZERA, ETH, SOL, Other).
+  // Compute portfolio composition by category (ZERA, ETH, SOL, Other) using live prices when available.
   const composition = React.useMemo(() => {
+    console.log('assets', assets)
     if (!assets?.length) {
       return { items: [], total: 0 }
     }
 
+    const getAssetValueUsd = (a: (typeof assets)[number]): number => {
+      const livePrice = pricesByMint?.[a.mint]?.summary?.price_usd
+      const price = typeof livePrice === 'number' ? livePrice : a.price
+      return price * a.amount
+    }
+
     const sumBy = (symbol: string) => assets
       .filter((a) => a.symbol.toUpperCase() === symbol)
-      .reduce((s, a) => s + (a.value ?? a.price * a.amount), 0)
+      .reduce((s, a) => s + getAssetValueUsd(a), 0)
 
     const zera = sumBy('ZERA')
     const eth = sumBy('ETH')
     const sol = sumBy('SOL')
     const knownTotal = zera + eth + sol
-    const overallTotal = assets.reduce((s, a) => s + (a.value ?? a.price * a.amount), 0)
+    const overallTotal = assets.reduce((s, a) => s + getAssetValueUsd(a), 0)
     const other = Math.max(0, overallTotal - knownTotal)
 
     const items = [
       { key: 'ZERA', label: 'ZERA', value: zera, color: 'var(--brand-green-500)' },
       { key: 'ETH', label: 'ETH', value: eth, color: 'var(--vb-500)' },
       { key: 'SOL', label: 'SOL', value: sol, color: 'var(--cpink-500)' },
-      { key: 'Other', label: 'Other', value: other, color: 'var(--subdued-500)' },
+      { key: 'Other', label: 'Other', value: other, color: 'var(--corange-500)' },
     ].filter((c) => c.value > 0)
 
     const sorted = items.sort((a, b) => b.value - a.value)
     return { items: sorted, total: overallTotal }
-  }, [assets])
+  }, [assets, pricesByMint])
 
   const totalDisplay = React.useMemo(() => {
     return composition.total || 0
@@ -119,53 +138,57 @@ function App() {
               </CardTitle>
             </CardHeader>
             <CardContent className="px-0">
-              <div className="px-2 space-y-3">
-                <div className="space-y-1">
-                  <div className={"font-pp-machina text-[32px] leading-[32px] tracking-[-0.006em] leading-trim-cap text-[var(--brand-green-50)]"}>
-                    {isHidden ? '•••••••' : `$${totalDisplay.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
-                  </div>
-                  {(() => {
-                    const total = composition.total || totalDisplay
-                    const changeUsd = assets?.length ? assets.reduce((s, a) => s + (a.pnl ?? 0), 0) : 0
-                    const changePct = total > 0 ? (changeUsd / total) * 100 : 0
-                    const positive = changeUsd >= 0
-                    return (
-                      <Badge variant="balance" balanceTone={positive ? 'green' : 'red'} className="py-0.5">
-                        {positive ? <ArrowUp /> : <ArrowDown />}
-                        {isHidden
-                          ? '•••• ••%'
-                          : `$${Math.abs(changeUsd).toLocaleString(undefined, { maximumFractionDigits: 2 })} (${Math.abs(changePct).toFixed(1)}%)`}
-                      </Badge>
-                    )
-                  })()}
+              {isHidden ? (
+                <div className="flex items-center justify-center h-[152px] text-foreground/50">
+                  hidden
                 </div>
-                  <div className="w-full h-2 rounded-full overflow-hidden bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)]">
-                    <div className="flex w-full h-full">
-                      {!isHidden && composition.items.map((c) => {
-                        const pct = composition.total > 0 ? (c.value / composition.total) * 100 : 0
+              ) : (
+                <div className="px-2 space-y-3">
+                  <div className="space-y-1">
+                    <div className={"font-pp-machina text-[32px] leading-[32px] tracking-[-0.006em] leading-trim-cap text-[var(--brand-green-50)]"}>
+                      {`$${totalDisplay.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
+                    </div>
+                    {/* {(() => {
+                      const changeUsd = upnl24h.changeUsd
+                      const prevMvIncluded = upnl24h.prevMarketValueUsdIncluded
+                      const changePct = prevMvIncluded > 0 ? (changeUsd / prevMvIncluded) * 100 : 0
+                      const positive = changeUsd >= 0
+                      return (
+                        <Badge variant="balance" balanceTone={positive ? 'green' : 'red'} className="py-0.5">
+                          {positive ? <ArrowUp /> : <ArrowDown />}
+                          {`$${Math.abs(changeUsd).toLocaleString(undefined, { maximumFractionDigits: 2 })}${prevMvIncluded > 0 ? ` (${Math.abs(changePct).toFixed(1)}%)` : ''}`}
+                        </Badge>
+                      )
+                    })()} */}
+                  </div>
+                    <div className="w-full h-2 rounded-full overflow-hidden bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)]">
+                      <div className="flex w-full h-full">
+                        {composition.items.map((c) => {
+                          const pct = composition.total > 0 ? (c.value / composition.total) * 100 : 0
+                          return (
+                            <div
+                              key={c.key}
+                              className="h-full"
+                              style={{ width: `${pct}%`, backgroundColor: c.color }}
+                            />
+                          )
+                        })}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-sm text-[var(--text-tertiary)]">
+                      {composition.items.map((c) => {
+                        const pct = composition.total > 0 ? Math.round((c.value / composition.total) * 100) : 0
                         return (
-                          <div
-                            key={c.key}
-                            className="h-full"
-                            style={{ width: `${pct}%`, backgroundColor: c.color }}
-                          />
+                          <div key={`legend-${c.key}`} className="flex items-center gap-2">
+                            <span className="inline-block size-3 rounded-[2px]" style={{ backgroundColor: c.color }} />
+                            <span className="text-foreground/80">{c.label}</span>
+                            <span className="text-foreground/50">{`${pct}%`}</span>
+                          </div>
                         )
                       })}
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-3 text-sm text-[var(--text-tertiary)]">
-                    {composition.items.map((c) => {
-                      const pct = composition.total > 0 ? Math.round((c.value / composition.total) * 100) : 0
-                      return (
-                        <div key={`legend-${c.key}`} className="flex items-center gap-2">
-                          <span className="inline-block size-3 rounded-[2px]" style={{ backgroundColor: c.color }} />
-                          <span className="text-foreground/80">{c.label}</span>
-                          <span className="text-foreground/50">{isHidden ? '••%' : `${pct}%`}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
           <Card variant="darkSolidGrey" className="h-[224px] py-6 px-4 w-full md:basis-1/2">
@@ -193,7 +216,7 @@ function App() {
                 <TableHead>Price</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Value</TableHead>
-                <TableHead>PNL</TableHead>
+                <TableHead>24hr %</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

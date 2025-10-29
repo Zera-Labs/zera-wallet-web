@@ -31,13 +31,10 @@ export function usePriceSocket(tokenAddresses: string[]) {
               ...prev,
               [parsed.tokenAddress]: parsed.data,
             }));
-            const price = parsed.data?.summary?.price_usd;
-            if (typeof price === 'number') {
-              try {
-                const { setToken } = useTokenFeed.getState();
-                setToken(parsed.tokenAddress, { id: parsed.tokenAddress, price, pnl: 0 });
-              } catch {}
-            }
+            try {
+              const { setToken } = useTokenFeed.getState();
+              setToken(parsed.tokenAddress, parsed.data);
+            } catch {}
           }
         } catch (err) {
           console.error('Invalid WS message', err);

@@ -259,8 +259,7 @@ code {
   --solana-border: #498DC3;
   --ethereum-border: #454545;
 
-  --balance-red: rgb(225, 28, 28);
-  --balance-green: rgba(34,62,34,0.5);
+  --balance-red: rgb(169, 38, 38);
 
   --wallet-card-grey: #171717;
 }

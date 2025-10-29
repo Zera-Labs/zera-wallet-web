@@ -3,7 +3,7 @@ import { CircleHelp } from 'lucide-react'
 import { TableRow, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { ensureFeed, releaseFeed, useLiveToken } from '@/stores/tokenFeed'
-import { valueUsd as calcValueUsd, unrealizedPnlUsd as calcUnrealized } from '@/lib/portfolio'
+import { valueUsd as calcValueUsd } from '@/lib/portfolio'
 import type { AssetRowData } from '@/hooks/useAssets'
 
 export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpen: () => void }) {
@@ -15,33 +15,34 @@ export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpe
     return undefined
   }
 
-  let borderColor = 'border-[var(--brand-green-300)]'
-  if (asset.name.toLowerCase().includes('ethereum')) {
-    borderColor = 'border-[var(--ethereum-border)]'
-  }
-  if (asset.name.toLowerCase().includes('solana')) {
-    borderColor = 'border-[var(--solana-border)]'
-  }
-
   useEffect(() => {
     ensureFeed(asset.mint)
     return () => releaseFeed(asset.mint)
   }, [asset.mint])
 
   const live = useLiveToken(asset.mint)
-  const price = live?.price ?? asset.price
+  console.log('live', live)
+  const name = live?.name ?? asset.name
+  const price = live?.summary?.price_usd ?? asset.price
+  let borderColor = 'border-[var(--brand-green-300)]'
+  if (name.toLowerCase().includes('ethereum')) {
+    borderColor = 'border-[var(--ethereum-border)]'
+  }
+  if (name.toLowerCase().includes('solana')) {
+    borderColor = 'border-[var(--solana-border)]'
+  }
   const liveValue = calcValueUsd(asset.amount, price)
-  const livePnlUsd = calcUnrealized(asset.amount, price, asset.avgCostUsd) ?? asset.pnl
+  const rawDp24 = live?.summary['24h'].last_price_usd_change ?? 0
 
   return (
     <TableRow onClick={onOpen} className="cursor-pointer">
       <TableCell className="flex items-center gap-3">
         {(() => {
-          const src = resolveIconSrc(asset.name)
+          const src = resolveIconSrc(name)
           return src ? (
             <img
               src={src}
-              alt={`${asset.name} logo`}
+              alt={`${name} logo`}
               className={`size-11 rounded-full border ${borderColor} object-cover`}
             />
           ) : (
@@ -51,14 +52,18 @@ export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpe
           )
         })()}
         <div className="flex items-center gap-2 text-[17px] leading-8">
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap">{asset.name}</span>
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">{name}</span>
           <Badge variant="secondary">{asset.chain}</Badge>
         </div>
       </TableCell>
       <TableCell className="tabular-nums font-body text-[16px] leading-8 tracking-[-0.006rem] text-[var(--text-primary)]/50">{price.toLocaleString(undefined, { maximumFractionDigits: 8 })}</TableCell>
-      <TableCell className="tabular-nums font-body text-[16px] leading-8 tracking-[-0.006rem] text-[var(--text-primary)]/50">{asset.amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</TableCell>
+      <TableCell className="tabular-nums font-body text-[16px] leading-8 tracking-[-0.006rem] text-[var(--text-primary)]/50">
+        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+          {asset.amount.toLocaleString(undefined, { maximumFractionDigits: 20 })}
+        </span>
+      </TableCell>
       <TableCell className="tabular-nums font-semibold">${liveValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
-      <TableCell className={`${livePnlUsd >= 0 ? 'text-[var(--brand-green)]' : 'text-[var(--balance-green)]'} tabular-nums`}>{(livePnlUsd >= 0 ? '+' : '')}${livePnlUsd.toLocaleString(undefined, { minimumFractionDigits: 2 })}</TableCell>
+      <TableCell className={`${rawDp24 >= 0 ? 'text-[var(--brand-green)]' : 'text-[var(--balance-red)]'} tabular-nums`}>{(rawDp24 >= 0 ? '+' : '-')}{Math.abs(rawDp24).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</TableCell>
     </TableRow>
   )
 }
