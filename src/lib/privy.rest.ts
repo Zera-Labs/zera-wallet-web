@@ -51,27 +51,6 @@ async function privyRequest(path: string, init?: { params?: Record<string, strin
   }
 }
 
-export async function getWalletTransactions(walletId: string) {
-  return await privyRequest(`/wallets/${encodeURIComponent(walletId)}/transactions`)
-}
-
-export async function getWalletBalance(
-  walletId: string,
-  params?: {
-    chain?: Array<'ethereum' | 'arbitrum' | 'base' | 'linea' | 'optimism' | 'polygon' | 'solana' | 'zksync_era' | 'sepolia' | 'arbitrum_sepolia' | 'base_sepolia' | 'linea_testnet' | 'optimism_sepolia' | 'polygon_amoy'>
-    asset?: Array<'usdc' | 'eth' | 'pol' | 'usdt' | 'sol'>
-    include_currency?: 'usd'
-  },
-) {
-  return await privyRequest(`/wallets/${encodeURIComponent(walletId)}/balance`, {
-    params: {
-      ...(params?.chain ? { chain: params.chain } : {}),
-      ...(params?.asset ? { asset: params.asset } : {}),
-      ...(params?.include_currency ? { include_currency: params.include_currency } : {}),
-    },
-  })
-}
-
 export async function getWallets(params?: { user_id?: string; chain?: string[] }) {
   const paramsOut: Record<string, string> = {}
   if (params?.user_id) paramsOut['user_id'] = params.user_id

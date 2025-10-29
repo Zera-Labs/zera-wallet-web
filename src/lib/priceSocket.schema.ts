@@ -70,5 +70,3 @@ export const zPriceWsMessage = z.discriminatedUnion('type', [
 
 export type PriceWsMessage = z.infer<typeof zPriceWsMessage>;
 export type PriceMessageData = z.infer<typeof zPriceMessage>['data'];
-
-

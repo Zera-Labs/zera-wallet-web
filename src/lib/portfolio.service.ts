@@ -130,21 +130,9 @@ export async function listHoldings(owner: string): Promise<Holding[]> {
   return p?.holdings ?? []
 }
 
-export async function getHoldingBySymbol(owner: string, symbol: string): Promise<Holding | undefined> {
-  const holdings = await listHoldings(owner)
-  return holdings.find((h) => h.symbol.toLowerCase() === symbol.toLowerCase())
-}
-
-// Removed Privy asset mapping in favor of mint-based metadata
-
 export async function listHoldingsFromPrivy(_walletPrivyId: string, ownerAddress?: string): Promise<Holding[]> {
   if (!ownerAddress) return []
   return await listHoldings(ownerAddress)
-}
-
-export async function getPortfolioFromPrivy(_walletPrivyId: string, ownerAddress?: string): Promise<Portfolio | undefined> {
-  if (!ownerAddress) return { owner: '', holdings: [], totalValueUsd: 0 }
-  return await getPortfolioByOwner(ownerAddress)
 }
 
 export async function getHoldingByMint(owner: string, mint: string): Promise<Holding | undefined> {
