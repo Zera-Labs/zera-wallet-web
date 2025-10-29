@@ -42,7 +42,8 @@ export const Route = createFileRoute('/api/assets')({
           pnl: h.unrealizedPnlUsd ?? 0,
           avgCostUsd: h.avgCostUsd,
         }))
-        // Enrich names/symbols via Helius DAS for unknown tokens
+
+        // Enrich names/symbols via Helius
         const key = process.env.HELIUS_API_KEY as string | undefined
         if (key) {
           const unknowns = rows.filter(r => r.chain === 'SOL' && r.mint && (r.name === r.mint || !r.name || r.name.toUpperCase() === r.symbol.toUpperCase()))
