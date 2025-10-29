@@ -1,5 +1,16 @@
 import { z } from 'zod';
 
+// Coerces numbers and numeric strings to number; otherwise null
+const zNullableNumber = z.preprocess((val) => {
+  if (val == null) return null;
+  if (typeof val === 'number' && Number.isFinite(val)) return val;
+  if (typeof val === 'string') {
+    const parsed = Number(val);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}, z.number().nullable());
+
 const timeframeStatsSchema = z.object({
   volume: z.number(),
   volume_usd: z.number(),
@@ -8,15 +19,15 @@ const timeframeStatsSchema = z.object({
   txns: z.number(),
   buy_usd: z.number(),
   sell_usd: z.number(),
-  last_price_usd_change: z.number().nullable(),
+  last_price_usd_change: zNullableNumber,
 });
 
 const summarySchema = z.object({
   chain: z.string(),
   id: z.string(),
-  price_usd: z.number(),
-  fdv: z.number(),
-  liquidity_usd: z.number(),
+  price_usd: zNullableNumber,
+  fdv: zNullableNumber,
+  liquidity_usd: zNullableNumber,
   pools: z.number(),
   '24h': timeframeStatsSchema,
   '6h': timeframeStatsSchema,
