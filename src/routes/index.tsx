@@ -76,6 +76,14 @@ function App() {
     return composition.total || 0
   }, [composition.total])
 
+  const onClickAsset = (mint: string) => {
+    if (mint !== 'so11111111111111111111111111111111111111112') {
+      navigate({ to: (`/tokens/${mint}` as any) })
+    } else {
+      navigate({ to: (`/tokens/sol11111111111111111111111111111111111111112` as any) })
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <div className="px-6 py-6 flex items-center justify-between">
@@ -217,7 +225,7 @@ function App() {
                 </TableRow>
               ) : (
                 assets.map((a) => (
-                  <AssetRow key={a.id} asset={a as any} onOpen={() => navigate({ to: (`/tokens/${a.mint}` as any) })} />
+                  <AssetRow key={a.id} asset={a as any} onOpen={() => onClickAsset(a.mint)} />
                 ))
               )}
             </TableBody>

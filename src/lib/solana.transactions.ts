@@ -182,20 +182,22 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): SolanaTra
 
 export async function getTransactionsForAddress(
   address: string,
-  limit = 25,
+  limit = 100,
   opts?: { before?: string; fetchAll?: boolean; maxPages?: number; dropZero?: boolean }
 ): Promise<SolanaTransactionsResponse> {
-  // Fetch Helius transactions with pagination
-  const pageLimit = Math.min(10, Math.max(1, limit))
-  const maxPages = Math.max(1, opts?.maxPages ?? (opts?.fetchAll ? 100 : 1))
+  // Fetch Helius transactions until we reach the requested total limit
+  const totalTarget = Math.max(1, limit)
+  const maxPages = Math.max(1, opts?.maxPages ?? 100)
+  const perRequestCap = 100 // conservative per-request cap for Helius endpoint
   let before = opts?.before
   const heliusTxs: HeliusTransaction[] = []
-  for (let page = 0; page < maxPages; page++) {
+  for (let page = 0; page < maxPages && heliusTxs.length < totalTarget; page++) {
+    const remaining = totalTarget - heliusTxs.length
+    const pageLimit = Math.min(perRequestCap, remaining)
     const batch = await fetchHeliusAddressTransactions(address, { before, limit: pageLimit })
     if (!Array.isArray(batch) || batch.length === 0) break
     heliusTxs.push(...batch)
     before = batch[batch.length - 1]?.signature
-    if (!opts?.fetchAll) break
     if (batch.length < pageLimit) break
   }
 
@@ -233,16 +235,8 @@ export async function getTransactionsForAddress(
     }
   }
 
-  // Deduplicate by transaction_hash: prefer SPL over SOL when both exist
+  // Deduplicate by transaction_hash + asset + type so we keep both directions and assets
   function pickBetter(existing: SolanaTransactionsResponse['transactions'][number], candidate: SolanaTransactionsResponse['transactions'][number]) {
-    const exIsSol = existing.details.asset.toLowerCase() === 'sol'
-    const caIsSol = candidate.details.asset.toLowerCase() === 'sol'
-    if (exIsSol && !caIsSol) return candidate
-    if (!exIsSol && caIsSol) return existing
-    const exRecv = existing.details.type === 'transfer_received'
-    const caRecv = candidate.details.type === 'transfer_received'
-    if (!exRecv && caRecv) return candidate
-    if (exRecv && !caRecv) return existing
     try {
       const exRaw = BigInt(existing.details.raw_value)
       const caRaw = BigInt(candidate.details.raw_value)
@@ -250,14 +244,14 @@ export async function getTransactionsForAddress(
     } catch {}
     return existing
   }
-  const seenByHash = new Map<string, SolanaTransactionsResponse['transactions'][number]>()
+  const seen = new Map<string, SolanaTransactionsResponse['transactions'][number]>()
   for (const item of out) {
-    const key = item.transaction_hash
-    const existing = seenByHash.get(key)
-    if (!existing) { seenByHash.set(key, item); continue }
-    seenByHash.set(key, pickBetter(existing, item))
+    const key = `${item.transaction_hash}|${item.details.asset.toLowerCase()}|${item.details.type}`
+    const existing = seen.get(key)
+    if (!existing) { seen.set(key, item); continue }
+    seen.set(key, pickBetter(existing, item))
   }
-  const deduped = Array.from(seenByHash.values())
+  const deduped = Array.from(seen.values())
 
   const nextCursor = heliusTxs.length > 0 ? String(heliusTxs[heliusTxs.length - 1].signature) : null
   return { transactions: deduped, next_cursor: nextCursor }
