@@ -7,6 +7,7 @@ export const TokenMetaSchema = z.object({
   name: z.string(),
   symbol: z.string(),
   chain: z.string(),
+  mint: z.string(),
   price: z.number(),
   pnl: z.number(),
   avgCostUsd: z.number().optional(),

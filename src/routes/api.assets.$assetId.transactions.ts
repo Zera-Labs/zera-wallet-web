@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { verifyRequestAndGetUser, getFirstSolanaAddressFromPrivyUser } from '@/lib/privy.server'
 import { getTransactionsForAddress } from '@/lib/solana.transactions'
-
-// Removed unused dummy transaction generator
+import { SolanaTransactionsResponse } from '@/lib/solana.transactions'
 
 export const Route = createFileRoute('/api/assets/$assetId/transactions')({
   params: {
@@ -16,11 +15,19 @@ export const Route = createFileRoute('/api/assets/$assetId/transactions')({
         const owner = getFirstSolanaAddressFromPrivyUser(user)
         if (!owner) return Response.json([])
         // Fetch wallet transactions directly from Solana RPC and filter by asset symbol
-        const data: any = await getTransactionsForAddress(owner)
-        const sym = params.assetId.toLowerCase()
-        const filtered = {
+        const data: SolanaTransactionsResponse = await getTransactionsForAddress(owner)
+        const assetId = params.assetId.toLowerCase()
+        const solMints = new Set<string>([
+          'so11111111111111111111111111111111111111112'.toLowerCase(),
+          'sol11111111111111111111111111111111111111112'.toLowerCase(),
+        ])
+        const isSolLike = assetId === 'sol' || solMints.has(assetId)
+        const filtered: SolanaTransactionsResponse = {
           ...data,
-          transactions: (data.transactions ?? []).filter((t: any) => String(t?.details?.asset || '').toLowerCase() === sym),
+          transactions: (data.transactions ?? []).filter((t: SolanaTransactionsResponse['transactions'][number]) => {
+            const asset = String(t?.details?.asset || '').toLowerCase()
+            return isSolLike ? asset === 'sol' : asset === assetId
+          }),
         }
         return Response.json(filtered)
       },

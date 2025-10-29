@@ -1,7 +1,7 @@
 // Using Helius Enhanced Transactions API to fetch history and parsed transfers
 import axios from 'axios'
 
-export type TransactionsResponse = {
+export type SolanaTransactionsResponse = {
   transactions: Array<{
     transaction_hash: string
     status:
@@ -19,6 +19,7 @@ export type TransactionsResponse = {
       type: 'transfer_sent' | 'transfer_received'
       chain: string
       asset: string // 'sol' or mint address for SPL
+      mint: string
       sender: string
       recipient: string
       raw_value: string // lamports for SOL; raw token amount (no decimals) for SPL
@@ -27,6 +28,15 @@ export type TransactionsResponse = {
     }
   }>
   next_cursor: string | null
+}
+
+export type HeliusTokenTransfer = {
+  mint?: string
+  fromUserAccount?: string
+  toUserAccount?: string
+  tokenAmount?: string | number
+  amount?: string | number
+  decimals?: number
 }
 
 type HeliusTransaction = {
@@ -38,14 +48,7 @@ type HeliusTransaction = {
     toUserAccount?: string
     amount?: number // lamports
   }>
-  tokenTransfers?: Array<{
-    mint?: string
-    fromUserAccount?: string
-    toUserAccount?: string
-    tokenAmount?: string | number // may be raw or ui per provider variant
-    amount?: string | number
-    decimals?: number
-  }>
+  tokenTransfers?: HeliusTokenTransfer[]
   events?: any
 }
 
@@ -79,8 +82,8 @@ export async function fetchHeliusAddressTransactions(address: string, params: { 
   }
 }
 
-function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): TransactionsResponse['transactions'][number][] {
-  const results: TransactionsResponse['transactions'][number][] = []
+function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): SolanaTransactionsResponse['transactions'][number][] {
+  const results: SolanaTransactionsResponse['transactions'][number][] = []
 
   // 1) All native SOL transfers involving the address
   const natives = (tx.nativeTransfers || []).filter(nt => nt && (nt.fromUserAccount === address || nt.toUserAccount === address) && (nt.amount ?? 0) !== 0)
@@ -96,6 +99,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
         type: sent ? 'transfer_sent' : 'transfer_received',
         chain: 'solana',
         asset: 'sol',
+        mint: 'sol11111111111111111111111111111111111111112',
         sender: native.fromUserAccount || '',
         recipient: native.toUserAccount || '',
         raw_value: String(native.amount),
@@ -120,6 +124,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
           type: sent ? 'transfer_sent' : 'transfer_received',
           chain: 'solana',
           asset: 'sol',
+          mint: 'sol11111111111111111111111111111111111111112',
           sender: solEvent.from || '',
           recipient: solEvent.to || '',
           raw_value: String(lamports),
@@ -131,7 +136,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
   }
 
   // 3) All SPL token transfers involving the address (e.g., swaps)
-  const tokenList: any[] = (tx.tokenTransfers || (tx as any).events?.tokenTransfers || (tx as any).events?.fungibleTokenTransfers || [])
+  const tokenList = (tx.tokenTransfers || (tx as any).events?.tokenTransfers || (tx as any).events?.fungibleTokenTransfers || []) as HeliusTokenTransfer[]
   const tokenTransfers = tokenList.filter((tt) => tt && (tt.fromUserAccount === address || tt.toUserAccount === address))
   for (const token of tokenTransfers) {
     const inputDecimals = typeof token.decimals === 'number' ? token.decimals : undefined
@@ -162,6 +167,7 @@ function mapHeliusTxToDetails(address: string, tx: HeliusTransaction): Transacti
         type: sent ? 'transfer_sent' : 'transfer_received',
         chain: 'solana',
         asset: String(token.mint || 'spl'),
+        mint: token.mint || '',
         sender: token.fromUserAccount || '',
         recipient: token.toUserAccount || '',
         raw_value: absRaw,
@@ -178,7 +184,7 @@ export async function getTransactionsForAddress(
   address: string,
   limit = 25,
   opts?: { before?: string; fetchAll?: boolean; maxPages?: number; dropZero?: boolean }
-): Promise<TransactionsResponse> {
+): Promise<SolanaTransactionsResponse> {
   // Fetch Helius transactions with pagination
   const pageLimit = Math.min(10, Math.max(1, limit))
   const maxPages = Math.max(1, opts?.maxPages ?? (opts?.fetchAll ? 100 : 1))
@@ -194,7 +200,7 @@ export async function getTransactionsForAddress(
   }
 
   // Map to our response shape
-  const out: Array<TransactionsResponse['transactions'][number]> = []
+  const out: Array<SolanaTransactionsResponse['transactions'][number]> = []
   for (const t of heliusTxs) {
     const mappedList = mapHeliusTxToDetails(address, t)
     if (!mappedList || mappedList.length === 0) {
@@ -208,6 +214,7 @@ export async function getTransactionsForAddress(
             type: 'transfer_received',
             chain: 'solana',
             asset: 'sol',
+            mint: 'sol11111111111111111111111111111111111111112',
             sender: '',
             recipient: '',
             raw_value: '0',
@@ -227,7 +234,7 @@ export async function getTransactionsForAddress(
   }
 
   // Deduplicate by transaction_hash: prefer SPL over SOL when both exist
-  function pickBetter(existing: TransactionsResponse['transactions'][number], candidate: TransactionsResponse['transactions'][number]) {
+  function pickBetter(existing: SolanaTransactionsResponse['transactions'][number], candidate: SolanaTransactionsResponse['transactions'][number]) {
     const exIsSol = existing.details.asset.toLowerCase() === 'sol'
     const caIsSol = candidate.details.asset.toLowerCase() === 'sol'
     if (exIsSol && !caIsSol) return candidate
@@ -243,7 +250,7 @@ export async function getTransactionsForAddress(
     } catch {}
     return existing
   }
-  const seenByHash = new Map<string, TransactionsResponse['transactions'][number]>()
+  const seenByHash = new Map<string, SolanaTransactionsResponse['transactions'][number]>()
   for (const item of out) {
     const key = item.transaction_hash
     const existing = seenByHash.get(key)

@@ -35,7 +35,8 @@ export const Route = createFileRoute('/api/assets')({
           name: h.name,
           symbol: h.symbol,
           chain: (h.chain || 'solana').toUpperCase().startsWith('SOL') ? 'SOL' : (h.chain || '').toUpperCase(),
-          mint: h.mint,
+          // privy gives us the wrapped SOL mint for some reason, so manually map to the unwrapped SOL mint
+          mint: h.mint === 'So11111111111111111111111111111111111111112' ? 'sol11111111111111111111111111111111111111112' : h.mint,
           price: h.priceUsd,
           amount: h.amount,
           value: h.valueUsd,

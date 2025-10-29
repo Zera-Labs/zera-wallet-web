@@ -147,4 +147,10 @@ export async function getPortfolioFromPrivy(_walletPrivyId: string, ownerAddress
   return await getPortfolioByOwner(ownerAddress)
 }
 
+export async function getHoldingByMint(owner: string, mint: string): Promise<Holding | undefined> {
+  const holdings = await listHoldings(owner)
+  const target = mint.toLowerCase()
+  return holdings.find((h) => h.mint.toLowerCase() === target)
+}
+
 

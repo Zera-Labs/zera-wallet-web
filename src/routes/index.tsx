@@ -5,14 +5,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import PerformanceChart from '@/components/PerformanceChart'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Eye, EyeOff, ArrowUp, ArrowDown, Send, Download } from 'lucide-react'
+import { Eye, EyeOff, Send, Download } from 'lucide-react'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import AssetRow from '@/components/AssetRow'
 import TransfersModal from '@/components/TransfersModal'
 import { usePriceSocket } from '@/hooks/usePriceSocket'
-import { useUser } from '@/hooks/useUser'
-import { useTransactions } from '@/hooks/useTransactions'
-import { computeUnrealisedUpnl24h } from '@/lib/upnl24h'
 import { useTokenFeed } from '@/stores/tokenFeed'
 
 export const Route = createFileRoute('/')({
@@ -22,13 +19,7 @@ export const Route = createFileRoute('/')({
 function App() {
   const navigate = useNavigate()
   const { data: assets = [], isLoading } = useAssets()
-  const { data: user } = useUser()
-  const walletId = React.useMemo(() => {
-    const acc = user?.linkedAccounts?.find((a: any) => a?.type === 'wallet' && a?.chainType === 'solana') as any
-    return acc?.address || ''
-  }, [user])
-  const { data: txResp } = useTransactions(walletId || '', { enabled: !!walletId })
-  const recentTxs = txResp?.transactions
+  
   const mints = React.useMemo(() => Array.from(new Set((assets ?? []).map((a) => a.mint).filter(Boolean))), [assets])
   const pricesByMint = usePriceSocket(mints)
   React.useEffect(() => {
@@ -226,7 +217,7 @@ function App() {
                 </TableRow>
               ) : (
                 assets.map((a) => (
-                  <AssetRow key={a.id} asset={a as any} onOpen={() => navigate({ to: (`/tokens/${a.id}` as any) })} />
+                  <AssetRow key={a.id} asset={a as any} onOpen={() => navigate({ to: (`/tokens/${a.mint}` as any) })} />
                 ))
               )}
             </TableBody>

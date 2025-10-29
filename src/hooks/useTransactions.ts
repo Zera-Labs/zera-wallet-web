@@ -6,6 +6,7 @@ const TransactionDetailsSchema = z.object({
   type: z.enum(['transfer_sent', 'transfer_received']),
   chain: z.string(),
   asset: z.string(),
+  mint: z.string().optional(),
   sender: z.string(),
   sender_privy_user_id: z.string().optional(),
   recipient: z.string(),
@@ -50,6 +51,16 @@ async function fetchTransactions(walletId: string, getAccessToken?: () => Promis
   return TransactionsResponseSchema.parse(json)
 }
 
+async function fetchAssetTransactions(assetId: string, getAccessToken?: () => Promise<string | undefined>): Promise<TransactionsResponse> {
+  const token = (await getAccessToken?.()) || undefined
+  const res = await fetch(`/api/assets/${encodeURIComponent(assetId)}/transactions`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  })
+  if (!res.ok) throw new Error('Failed to load asset transactions')
+  const json = await res.json()
+  return TransactionsResponseSchema.parse(json)
+}
+
 export function useTransactions(
   walletId: string,
   options?: Omit<UseQueryOptions<TransactionsResponse, Error>, 'queryKey' | 'queryFn'>,
@@ -59,6 +70,21 @@ export function useTransactions(
     queryKey: ['transactions', walletId],
     queryFn: () => fetchTransactions(walletId, getAccessToken as any),
     enabled: !!walletId,
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+    ...options,
+  })
+}
+
+export function useAssetTransactions(
+  assetId: string,
+  options?: Omit<UseQueryOptions<TransactionsResponse, Error>, 'queryKey' | 'queryFn'>,
+) {
+  const { getAccessToken } = usePrivy()
+  return useQuery<TransactionsResponse, Error>({
+    queryKey: ['assetTransactions', assetId],
+    queryFn: () => fetchAssetTransactions(assetId, getAccessToken as any),
+    enabled: !!assetId,
     staleTime: 30_000,
     refetchOnWindowFocus: false,
     ...options,

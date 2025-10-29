@@ -40,7 +40,7 @@ function formatDate(ts: number) {
 
 export function TransactionsTable({ rows }: { rows: TxRow[] }) {
   return (
-      <Table className="text-[15px]">
+    <Table className="text-[15px]">
       <colgroup>
         <col className="w-[20%]" />
         <col className="w-[20%]" />
@@ -132,7 +132,7 @@ export function TransactionsTable({ rows }: { rows: TxRow[] }) {
           })
         )}
       </TableBody>
-      </Table>
+    </Table>
   )
 }
 
