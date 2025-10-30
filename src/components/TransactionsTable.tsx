@@ -2,7 +2,7 @@
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
-import { Send, Download } from 'lucide-react'
+import { Send, Download, ExternalLink } from 'lucide-react'
 
 export type TxRow = {
   key: string
@@ -126,7 +126,17 @@ export function TransactionsTable({ rows }: { rows: TxRow[] }) {
                   </Badge>
                 </TableCell>
                 <TableCell>{formatDate(r.createdAt)}</TableCell>
-                <TableCell className="font-mono text-[13px] opacity-80">{r.signature.slice(0, 10)}…</TableCell>
+                <TableCell className="font-mono text-[13px] opacity-80">
+                  <a
+                    href={`https://solscan.io/tx/${r.signature}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline inline-flex items-center gap-1"
+                  >
+                    {r.signature.slice(0, 10)}…
+                    <ExternalLink className="size-3.5 opacity-80" aria-hidden="true" />
+                  </a>
+                </TableCell>
               </TableRow>
             )
           })
