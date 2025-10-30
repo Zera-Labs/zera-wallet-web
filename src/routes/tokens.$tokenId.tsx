@@ -12,6 +12,7 @@ import { ArrowUp, ArrowDown, ArrowLeftRight, CircleEllipsis, ChevronLeft, Chevro
 import PerformanceChart from '@/components/PerformanceChart'
 import { useAssetImage } from '@/hooks/useAssets'
 import { usePriceSocket } from '@/hooks/usePriceSocket'
+import { buildDataByRangeFromLive } from '@/lib/chartMath'
 
 export const Route = createFileRoute('/tokens/$tokenId')({
   component: TokenPage,
@@ -168,11 +169,11 @@ function TokenPage() {
         </div>
         <Card variant="darkSolidGrey" className="w-full min-h-[260px] py-3 px-4">
           <PerformanceChart
-            ranges={["1H", "1D", "1W", "1M", "YTD", "ALL"]}
-            defaultRange="1D"
             chartHeight={180}
             title="Performance"
             currencyBadge="USD"
+            data={buildDataByRangeFromLive(live)['24H']}
+            currentPrice={typeof price === 'number' ? price : undefined}
           />
         </Card>
       </section>

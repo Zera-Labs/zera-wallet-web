@@ -11,6 +11,7 @@ import AssetRow from '@/components/AssetRow'
 import TransfersModal from '@/components/TransfersModal'
 import { usePriceSocket } from '@/hooks/usePriceSocket'
 import { useTokenFeed } from '@/stores/tokenFeed'
+import { buildPortfolioAnchoredSeriesWithDiagnostics } from '@/lib/chartMath'
 
 export const Route = createFileRoute('/')({
   component: App,
@@ -70,6 +71,19 @@ function App() {
     const sorted = items.sort((a, b) => b.value - a.value)
     return { items: sorted, total: overallTotal }
   }, [assets, pricesByMint])
+  const { seriesForChart, missingNote } = React.useMemo(() => {
+    const now = Math.floor(Date.now() / 1000)
+    const minimal = (assets ?? []).map((a) => ({ mint: a.mint, amount: a.amount, price: a.price }))
+    const { points, missingMints } = buildPortfolioAnchoredSeriesWithDiagnostics(now, minimal, pricesByMint)
+    const mintToSymbol = new Map<string, string>()
+    for (const a of assets ?? []) mintToSymbol.set(a.mint, String(a.symbol || '').toUpperCase())
+    const labels = missingMints
+      .map((m) => mintToSymbol.get(m) || (m.length > 8 ? `${m.slice(0, 6)}…` : m))
+      .filter(Boolean)
+    const note = labels.length ? `Missing data: ${labels.join(', ')}` : undefined
+    return { seriesForChart: points, missingNote: note }
+  }, [assets, pricesByMint])
+
 
   const totalDisplay = React.useMemo(() => {
     return composition.total || 0
@@ -190,7 +204,14 @@ function App() {
             </CardContent>
           </Card>
           <Card variant="darkSolidGrey" className="h-[224px] py-6 px-4 w-full md:basis-1/2">
-            <PerformanceChart />
+            <PerformanceChart
+              data={seriesForChart}
+              currentPrice={composition.total}
+              chartHeight={152}
+              title="Performance"
+              currencyBadge="USD"
+              note={missingNote}
+            />
           </Card>
         </div>
       </section>
