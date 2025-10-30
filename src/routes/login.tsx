@@ -10,9 +10,6 @@ export const Route = createFileRoute('/login')({
 function LoginPage() {
   const { ready, authenticated, login } = usePrivy()
   const navigate = useNavigate()
-  // no-op: cookie presence no longer required for redirect
-  console.log('ready: ', ready)
-  console.log('authenticated: ', authenticated)
 
   React.useEffect(() => {
     if (ready && authenticated) {

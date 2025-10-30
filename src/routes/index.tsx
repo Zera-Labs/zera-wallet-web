@@ -39,7 +39,6 @@ function App() {
   
   // Compute portfolio composition by category (ZERA, ETH, SOL, Other) using live prices when available.
   const composition = React.useMemo(() => {
-    console.log('assets', assets)
     if (!assets?.length) {
       return { items: [], total: 0 }
     }
