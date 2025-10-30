@@ -51,8 +51,12 @@ export function useTokenMeta(tokenId: string, options?: Omit<UseQueryOptions<Tok
   return useQuery<TokenMeta, Error>({
     queryKey: ['token', tokenId],
     queryFn: () => fetchTokenMeta(tokenId, getAccessToken as any),
+    enabled: !!tokenId,
     staleTime: 30_000,
+    gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: 1,
     ...options,
   })
 }

@@ -75,12 +75,12 @@ function App() {
     return composition.total || 0
   }, [composition.total])
 
-  const onClickAsset = (mint: string) => {
-    if (mint !== 'so11111111111111111111111111111111111111112') {
-      navigate({ to: (`/tokens/${mint}` as any) })
-    } else {
-      navigate({ to: (`/tokens/sol11111111111111111111111111111111111111112` as any) })
+  const onClickAsset = (mint: string, symbol?: string) => {
+    if (String(symbol || '').toUpperCase() === 'SOL' || mint.toLowerCase() === 'so11111111111111111111111111111111111111112') {
+      navigate({ to: (`/tokens/SOL` as any) })
+      return
     }
+    navigate({ to: (`/tokens/${mint}` as any) })
   }
 
   return (
@@ -224,7 +224,7 @@ function App() {
                 </TableRow>
               ) : (
                 assets.map((a) => (
-                  <AssetRow key={a.id} asset={a as any} onOpen={() => onClickAsset(a.mint)} />
+                  <AssetRow key={a.id} asset={a as any} onOpen={() => onClickAsset(a.mint, a.symbol)} />
                 ))
               )}
             </TableBody>

@@ -31,7 +31,7 @@ export const Route = createFileRoute('/api/assets')({
           ? await listHoldingsFromPrivy(walletPrivyId, owner)
           : await listHoldings(owner)
         let rows: Asset[] = holdings.map((h) => ({
-          id: h.symbol.toLowerCase(),
+          id: h.mint,
           name: h.name,
           symbol: h.symbol,
           chain: (h.chain || 'solana').toUpperCase().startsWith('SOL') ? 'SOL' : (h.chain || '').toUpperCase(),
@@ -46,10 +46,10 @@ export const Route = createFileRoute('/api/assets')({
         // Enrich names/symbols via Helius
         const key = process.env.HELIUS_API_KEY as string | undefined
         if (key) {
-          const unknowns = rows.filter(r => r.chain === 'SOL' && r.mint && (r.name === r.mint || !r.name || r.name.toUpperCase() === r.symbol.toUpperCase()))
-          if (unknowns.length > 0) {
+          const targets = rows.filter(r => r.chain === 'SOL' && r.mint)
+          if (targets.length > 0) {
             const url = `https://mainnet.helius-rpc.com/?api-key=${encodeURIComponent(key)}`
-            await Promise.all(unknowns.map(async (r) => {
+            await Promise.all(targets.map(async (r) => {
               try {
                 const res = await axios.post(url, { jsonrpc: '2.0', id: '1', method: 'getAsset', params: { id: r.mint } }, { validateStatus: () => true, timeout: 15000 })
                 if (res.status >= 200 && res.status < 300) {

@@ -46,6 +46,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   }),
 
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -87,5 +88,16 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <React.Suspense fallback={app}>
       <LazyPrivyProvider>{app}</LazyPrivyProvider>
     </React.Suspense>
+  )
+}
+
+function NotFound() {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center p-6">
+      <div className="text-center">
+        <h1 className="font-pp-machina text-3xl">Not Found</h1>
+        <p className="mt-2 text-muted-foreground">The page you’re looking for doesn’t exist.</p>
+      </div>
+    </div>
   )
 }

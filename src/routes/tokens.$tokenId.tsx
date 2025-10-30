@@ -1,16 +1,17 @@
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useTokenMeta } from '@/hooks/useToken'
-import { useTransactions } from '@/hooks/useTransactions'
-import { useAssets } from '@/hooks/useAssets'
+import { useAssetTransactions } from '@/hooks/useTransactions'
 import { usePrivy } from '@privy-io/react-auth'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { TransactionsTable, type TxRow } from '@/components/TransactionsTable'
 import { Button } from '@/components/ui/button'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLiveToken, ensureFeed, releaseFeed } from '@/stores/tokenFeed'
 import { ArrowUp, ArrowDown, ArrowLeftRight, CircleEllipsis, ChevronLeft, ChevronRight } from 'lucide-react'
 import PerformanceChart from '@/components/PerformanceChart'
+import { useAssetImage } from '@/hooks/useAssets'
+import { usePriceSocket } from '@/hooks/usePriceSocket'
 
 export const Route = createFileRoute('/tokens/$tokenId')({
   component: TokenPage,
@@ -18,27 +19,37 @@ export const Route = createFileRoute('/tokens/$tokenId')({
 
 function TokenPage() {
   const { tokenId } = useParams({ from: '/tokens/$tokenId' })
+  const { getAccessToken } = usePrivy() as any
 
-  useEffect(() => {
-    ensureFeed(tokenId)
-    return () => releaseFeed(tokenId)
+  const WRAPPED_SOL_MINT = 'So11111111111111111111111111111111111111112'
+  const SYNTH_SOL_MINT = 'sol11111111111111111111111111111111111111112'
+  const feedMint = useMemo(() => {
+    const lower = tokenId.toLowerCase()
+    return lower === 'sol' || lower === WRAPPED_SOL_MINT || lower === SYNTH_SOL_MINT ? WRAPPED_SOL_MINT : tokenId
   }, [tokenId])
 
-  const live = useLiveToken(tokenId)
+  useEffect(() => {
+    ensureFeed(feedMint)
+    return () => releaseFeed(feedMint)
+  }, [feedMint])
+
+  const live = useLiveToken(feedMint)
+  // Ensure live price subscription when landing directly or on refresh
+  usePriceSocket([feedMint])
 
   const { data: meta } = useTokenMeta(tokenId)
 
-  // Fetch all wallet transactions and filter client-side by mint
-  const { user, getAccessToken } = usePrivy() as any
-  const walletId = (user as any)?.wallets?.find((w: any) => w?.chainType === 'solana' || w?.chain === 'solana')?.address
-    ?? (user as any)?.linkedAccounts?.find((a: any) => a?.type === 'wallet' && (a?.chainType === 'solana' || a?.chain === 'solana'))?.address
-    ?? 'unknown-wallet'
-  const { data: allTxs, isLoading: isLoadingTxs } = useTransactions(walletId)
-  const rowsAll = allTxs?.transactions ?? []
-  const rows = useMemo(() => {
-    const target = tokenId.toLowerCase()
-    return rowsAll.filter((t) => String(t?.details?.mint || '').toLowerCase() === target)
-  }, [rowsAll, tokenId])
+  // Fetch only this asset's transactions (server combines SOL & wSOL when tokenId is SOL)
+  const assetId = useMemo(() => {
+    const lower = tokenId.toLowerCase()
+    const solMints = new Set([
+      'so11111111111111111111111111111111111111112',
+      'sol11111111111111111111111111111111111111112',
+    ])
+    return lower === 'sol' || solMints.has(lower) ? 'SOL' : tokenId
+  }, [tokenId])
+  const { data: assetTxs, isLoading: isLoadingTxs } = useAssetTransactions(assetId)
+  const rows = useMemo(() => assetTxs?.transactions ?? [], [assetTxs])
 
   // Pagination and small-amount toggle (mirrors Activity page)
   const [pageSize, setPageSize] = useState(10)
@@ -60,29 +71,27 @@ function TokenPage() {
   const end = start + pageSize
   const pageRows = filteredBySmall.slice(start, end)
 
-  // Resolve mint -> symbol/name like Activity page
-  const { data: assets = [] } = useAssets()
-  const mintToName = useMemo(() => {
-    const m: Record<string, string> = {}
-    for (const a of assets) m[a.mint] = a.name || a.symbol || a.mint
-    return m
-  }, [assets])
+  // Avoid loading all assets here; derive display names from meta and fallbacks
   const [extraMintNames, setExtraMintNames] = useState<Record<string, string>>({})
-  const requestedMintsRef = useMemo(() => new Set<string>(), [])
-  const extraMintNamesRef = useMemo(() => ({ current: {} as Record<string, string> }), [])
+  const requestedMintsRef = useRef<Set<string>>(new Set())
+  const extraMintNamesRef = useRef<Record<string, string>>({})
   useEffect(() => { extraMintNamesRef.current = extraMintNames }, [extraMintNames])
+  // Reset requested mints and cached names when token changes to avoid stale cross-token state
+  useEffect(() => {
+    requestedMintsRef.current.clear()
+    setExtraMintNames({})
+  }, [tokenId])
   useEffect(() => {
     const candidates = pageRows
       .map((t) => t.details.asset)
       .filter((mint) => mint && mint.toLowerCase() !== 'sol')
     const mintsNeedingName = Array.from(new Set(candidates)).filter((mint) => {
-      if (mintToName[mint]) return false
       if (extraMintNamesRef.current[mint]) return false
-      if (requestedMintsRef.has(mint)) return false
+      if (requestedMintsRef.current.has(mint)) return false
       return true
     })
     if (mintsNeedingName.length === 0) return
-    for (const m of mintsNeedingName) requestedMintsRef.add(m)
+    for (const m of mintsNeedingName) requestedMintsRef.current.add(m)
     ;(async () => {
       try {
         const headerToken = (await getAccessToken?.()) || undefined
@@ -114,35 +123,47 @@ function TokenPage() {
         })
       } catch {}
     })()
-  }, [pageRows, mintToName, getAccessToken])
+  }, [pageRows, getAccessToken])
 
   useEffect(() => {
     setPage(1)
   }, [pageSize, tokenId])
 
   const price = live?.summary?.price_usd ?? meta?.price
-  const pnlPercent = useMemo(() => {
-    const avg = meta?.avgCostUsd
-    if (avg != null && avg > 0 && price != null) {
-      return ((price - avg) / avg) * 100
-    }
-    return meta?.pnl
-  }, [meta?.avgCostUsd, meta?.pnl, price])
+  const change24h = live?.summary?.['24h']?.last_price_usd_change
+  const nameDisplay = live?.name ?? meta?.name ?? tokenId.toUpperCase()
+  const { data: assetImg } = useAssetImage(feedMint)
+  const resolveIconSrc = (name: string): string | undefined => {
+    const n = name.toLowerCase()
+    if (n.includes('solana')) return '/solana-logo.png'
+    if (n.includes('zera')) return '/android-chrome-192x192.png'
+    if (n.includes('ethereum')) return '/ethereum-logo.png'
+    return undefined
+  }
+  const imgSrc = assetImg?.image || resolveIconSrc(nameDisplay)
 
   return (
     <div className="px-6 pb-16">
       <section className="pt-6 pb-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="size-11 rounded-full bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)]" />
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={`${nameDisplay} logo`}
+              className="size-11 rounded-full border border-[var(--brand-light-green)] object-cover"
+            />
+          ) : (
+            <div className="size-11 rounded-full bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)]" />
+          )}
           <div className="flex items-center gap-2 text-[17px] leading-8">
-            <span>{live?.name ?? meta?.name ?? tokenId.toUpperCase()}</span>
+            <span>{nameDisplay}</span>
             <Badge variant="secondary">{meta?.chain ?? '—'}</Badge>
           </div>
         </div>
         <div className="flex items-end gap-3 mb-4">
           <div className="text-[44px] font-extrabold tabular-nums">{price != null ? `$${price.toLocaleString(undefined, { maximumFractionDigits: 8 })}` : '—'}</div>
-          <Badge variant="balance" balanceTone={(pnlPercent ?? 0) >= 0 ? 'green' : 'red'}>
-            {(pnlPercent != null ? `${pnlPercent >= 0 ? '+' : ''}${pnlPercent.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : '—`')}%
+          <Badge variant="balance" balanceTone={(change24h ?? 0) >= 0 ? 'green' : 'red'}>
+            {(change24h != null ? `${change24h >= 0 ? '+' : ''}${Math.abs(change24h).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '—')}%
           </Badge>
         </div>
         <Card variant="darkSolidGrey" className="w-full min-h-[260px] py-3 px-4">
@@ -173,12 +194,13 @@ function TokenPage() {
           <TransactionsTable
             rows={pageRows.map<TxRow>((t) => {
               const sent = t.details.type === 'transfer_sent'
-              const isSol = t.details.asset.toLowerCase() === 'sol'
-              const symbol = isSol ? 'SOL' : (mintToName[t.details.asset] || extraMintNames[t.details.asset] || t.details.asset.toUpperCase())
+              const mintLc = String(t.details.mint || '').toLowerCase()
+              const isSol = t.details.asset.toLowerCase() === 'sol' || mintLc === 'so11111111111111111111111111111111111111112'
+              const symbol = isSol ? 'SOL' : (extraMintNames[t.details.asset] || t.details.asset.toUpperCase())
               const fullDisplay = t.details.display_values[symbol.toLowerCase()] ?? Object.values(t.details.display_values)[0] ?? ''
               const counterparty = sent ? t.details.recipient : t.details.sender
               return {
-                key: t.transaction_id,
+                key: `${t.transaction_hash}_${t.details.asset}_${sent ? 'sent' : 'received'}_${counterparty}`,
                 type: sent ? 'sent' : 'received',
                 symbol,
                 amountDisplay: fullDisplay,

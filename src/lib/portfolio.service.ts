@@ -4,10 +4,6 @@ import { Address, Commitment, createSolanaRpc } from '@solana/kit'
 // Thin abstraction to prepare for swapping in real APIs/websockets later.
 const rpc = createSolanaRpc('https://api.mainnet-beta.solana.com')
 
-export async function getLivePrices(_mints: string[]): Promise<Map<string, number>> {
-  return new Map()
-}
-
 async function fetchSolBalance(address: string): Promise<{ amount: number; priceUsd: number }> {
   const { value } = await rpc
     .getBalance(address as Address, { commitment: 'confirmed' as Commitment })
@@ -65,15 +61,6 @@ async function fetchSplTokenAccounts(owner: string): Promise<Array<{ mint: strin
   return Array.from(perMint, ([mint, { amount, decimals }]) => ({ mint, amount, decimals }))
 }
 
-function mapMintToMetadata(mint: string, decimals: number): { symbol: string; name: string; decimals: number; mint: string } {
-  const m = mint.toLowerCase()
-  if (m === 'so11111111111111111111111111111111111111112') return { symbol: 'SOL', name: 'Solana', decimals: 9, mint }
-  if (m === 'epjfwdd5aufqssqem2qn1xzybapc8g4weggkzwydtt1v') return { symbol: 'USDC', name: 'USD Coin', decimals: 6, mint }
-  if (m === 'es9vmfrzacerzz1zq6k8cqjqb9cyym2dlixx7ac3y3') return { symbol: 'USDT', name: 'Tether USD', decimals: 6, mint }
-  if (m === '8avjtjhahfqp4g2rr9alagbpstqkpzr8nrbzstwzera') return { symbol: 'ZERA', name: 'Zera', decimals, mint }
-  return { symbol: mint.slice(0, 4).toUpperCase(), name: mint, decimals, mint }
-}
-
 export async function getPortfolioByOwner(owner: string): Promise<Portfolio | undefined> {
   const [{ amount: solAmount, priceUsd: solPrice }, tokens] = await Promise.all([
     fetchSolBalance(owner),
@@ -89,7 +76,7 @@ export async function getPortfolioByOwner(owner: string): Promise<Portfolio | un
     address: owner,
     mint: 'So11111111111111111111111111111111111111112',
     symbol: 'SOL',
-    name: 'Solana',
+    name: 'So11111111111111111111111111111111111111112',
     decimals: 9,
     amountRaw: String(Math.round(solAmount * 1_000_000_000)),
     amount: solAmount,
@@ -101,7 +88,10 @@ export async function getPortfolioByOwner(owner: string): Promise<Portfolio | un
   })
 
   for (const t of tokens) {
-    const { symbol, name, decimals, mint } = mapMintToMetadata(t.mint, t.decimals)
+    const mint = t.mint
+    const decimals = t.decimals
+    const symbol = mint.slice(0, 4).toUpperCase()
+    const name = mint
     const price = priceMap.get(mint) ?? 0
     const value = Number((t.amount * price).toFixed(2))
     holdings.push({
@@ -131,6 +121,7 @@ export async function listHoldings(owner: string): Promise<Holding[]> {
 }
 
 export async function listHoldingsFromPrivy(_walletPrivyId: string, ownerAddress?: string): Promise<Holding[]> {
+  console.log('listHoldingsFromPrivy')
   if (!ownerAddress) return []
   return await listHoldings(ownerAddress)
 }
@@ -140,5 +131,3 @@ export async function getHoldingByMint(owner: string, mint: string): Promise<Hol
   const target = mint.toLowerCase()
   return holdings.find((h) => h.mint.toLowerCase() === target)
 }
-
-

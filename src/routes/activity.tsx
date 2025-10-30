@@ -166,7 +166,7 @@ function ActivityPage() {
               const fullDisplay = t.details.display_values[symbol.toLowerCase()] ?? Object.values(t.details.display_values)[0] ?? ''
               const counterparty = sent ? t.details.recipient : t.details.sender
               return {
-                key: t.transaction_id,
+                key: `${t.transaction_hash}_${t.details.asset}_${sent ? 'sent' : 'received'}_${counterparty}`,
                 type: sent ? 'sent' : 'received',
                 symbol,
                 amountDisplay: fullDisplay,

@@ -17,6 +17,24 @@ export const Route = createFileRoute('/api/token/$tokenId')({
         const owner = getFirstSolanaAddressFromPrivyUser(user)
         const mint = params.tokenId
         if (owner) {
+          const lower = mint.toLowerCase()
+          const WRAPPED_SOL_MINT = 'so11111111111111111111111111111111111111112'
+          const SYNTH_SOL_MINT = 'sol11111111111111111111111111111111111111112'
+          const isSolLike = lower === 'sol' || lower === WRAPPED_SOL_MINT || lower === SYNTH_SOL_MINT
+          if (isSolLike) {
+            const holding = await getHoldingByMint(owner, WRAPPED_SOL_MINT)
+            const meta: TokenMeta = {
+              id: 'SOL',
+              name: holding?.name || 'Solana',
+              mint: WRAPPED_SOL_MINT,
+              symbol: 'SOL',
+              chain: 'SOL',
+              price: holding?.priceUsd ?? 0,
+              pnl: holding?.unrealizedPnlUsd ?? 0,
+              avgCostUsd: holding?.avgCostUsd,
+            }
+            return Response.json(meta)
+          }
           const holding = await getHoldingByMint(owner, mint)
           if (holding) {
             const meta: TokenMeta = {
@@ -33,15 +51,29 @@ export const Route = createFileRoute('/api/token/$tokenId')({
             return Response.json(meta)
           }
         }
-        const fallback = tokenDirectory[mint] ?? {
-          id: mint,
-          name: mint.toUpperCase(),
-          mint: mint,
-          symbol: mint.slice(0, 4).toUpperCase(),
-          chain: 'SOL',
-          price: 1,
-          pnl: 0,
-        }
+        const fallback = tokenDirectory[mint] ?? ((() => {
+          const lower = mint.toLowerCase()
+          if (lower === 'sol') {
+            return {
+              id: 'SOL',
+              name: 'Solana',
+              mint: 'so11111111111111111111111111111111111111112',
+              symbol: 'SOL',
+              chain: 'SOL',
+              price: 0,
+              pnl: 0,
+            } satisfies TokenMeta
+          }
+          return {
+            id: mint,
+            name: mint.toUpperCase(),
+            mint: mint,
+            symbol: mint.slice(0, 4).toUpperCase(),
+            chain: 'SOL',
+            price: 1,
+            pnl: 0,
+          } satisfies TokenMeta
+        })())
         return Response.json(fallback)
       },
     },

@@ -15,7 +15,6 @@ export function usePriceSocket(tokenAddresses: string[]) {
       wsRef.current = ws;
 
       ws.onopen = () => {
-        console.log('✅ WebSocket connected');
         try {
           ws.send(JSON.stringify({ type: 'subscribeMany', tokenAddresses }));
         } catch (e) {

@@ -35,7 +35,13 @@ export const Route = createFileRoute('/api/token/$tokenId/asset')({
           const image = firstImage?.cdn_uri || firstImage?.uri || null
           const name: string | undefined = content?.metadata?.name || content?.metadata?.symbol
           const symbol: string | undefined = content?.metadata?.symbol || content?.metadata?.name
-          return Response.json({ image, name, symbol })
+          const body = { image, name, symbol }
+          return Response.json(body, {
+            headers: {
+              // Cache at browser and edge; images change rarely
+              'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
+            },
+          })
         } catch (err: any) {
           const msg = err?.message || 'axios error'
           return new Response(`Helius axios error: ${msg}`, { status: 502 })
