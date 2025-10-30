@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PrivateCashRouteImport } from './routes/private-cash'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,11 @@ import { Route as ApiWalletsWalletIdTransactionsRouteImport } from './routes/api
 import { Route as ApiTokenTokenIdAssetRouteImport } from './routes/api.token.$tokenId.asset'
 import { Route as ApiAssetsAssetIdTransactionsRouteImport } from './routes/api.assets.$assetId.transactions'
 
+const PrivateCashRoute = PrivateCashRouteImport.update({
+  id: '/private-cash',
+  path: '/private-cash',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
+  '/private-cash': typeof PrivateCashRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
+  '/private-cash': typeof PrivateCashRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activity': typeof ActivityRoute
   '/login': typeof LoginRoute
+  '/private-cash': typeof PrivateCashRoute
   '/api/assets': typeof ApiAssetsRouteWithChildren
   '/api/me': typeof ApiMeRoute
   '/tokens/$tokenId': typeof TokensTokenIdRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
+    | '/private-cash'
     | '/api/assets'
     | '/api/me'
     | '/tokens/$tokenId'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
+    | '/private-cash'
     | '/api/assets'
     | '/api/me'
     | '/tokens/$tokenId'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activity'
     | '/login'
+    | '/private-cash'
     | '/api/assets'
     | '/api/me'
     | '/tokens/$tokenId'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivityRoute: typeof ActivityRoute
   LoginRoute: typeof LoginRoute
+  PrivateCashRoute: typeof PrivateCashRoute
   ApiAssetsRoute: typeof ApiAssetsRouteWithChildren
   ApiMeRoute: typeof ApiMeRoute
   TokensTokenIdRoute: typeof TokensTokenIdRoute
@@ -162,6 +175,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/private-cash': {
+      id: '/private-cash'
+      path: '/private-cash'
+      fullPath: '/private-cash'
+      preLoaderRoute: typeof PrivateCashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -263,6 +283,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivityRoute: ActivityRoute,
   LoginRoute: LoginRoute,
+  PrivateCashRoute: PrivateCashRoute,
   ApiAssetsRoute: ApiAssetsRouteWithChildren,
   ApiMeRoute: ApiMeRoute,
   TokensTokenIdRoute: TokensTokenIdRoute,
