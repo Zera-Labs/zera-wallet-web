@@ -24,6 +24,7 @@ type WalletLayoutProps = {
 export default function WalletLayout({ children }: WalletLayoutProps) {
   const topItems = [
     { key: 'Dashboard', label: 'Dashboard', icon: House, to: '/' },
+    { key: 'PrivateCash', label: 'Private cash', icon: Scale, to: '/private-cash' },
     { key: 'activity', label: 'Activity', icon: Activity, to: '/activity' },
   ] as const
 

@@ -22,6 +22,8 @@ const cardVariants = cva(
           "bg-black/55 rounded-[22px] p-8 gap-8 border-0 text-[var(--text-primary)]",
         darkSolidGrey:
           "bg-[var(--wallet-card-grey)] rounded-[22px] p-8 gap-8 border-0 text-[var(--text-primary)]",
+        lightSolidGrey:
+          "bg-[#232222] rounded-[22px] p-8 gap-8 border-0 text-[var(--text-primary)]",
         ghost:
           "bg-transparent text-inherit border-0 shadow-none rounded-none p-0 gap-0 text-[var(--text-primary)]",
         info:
