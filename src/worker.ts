@@ -97,9 +97,32 @@ export default {
     const upgrade = inner.headers.get('Upgrade') || ''
     if (upgrade.toLowerCase() === 'websocket') return inner
 
-    const { hostname } = new URL(request.url)
+    const url = new URL(request.url)
+    const { hostname, pathname } = url
     const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
-    return withSecurityHeaders(inner, isLocal)
+
+    // Start with original headers and add caching/compression-related headers
+    const headers = new Headers(inner.headers)
+
+    // Help intermediate caches negotiate compressed variants
+    headers.append('Vary', 'Accept-Encoding')
+
+    // Long-term caching for versioned static assets
+    const isStaticAsset =
+      pathname.startsWith('/assets/') ||
+      /\.(?:js|css|woff2|ttf|otf|svg|png|jpg|jpeg|webp|ico|json|map)$/i.test(pathname)
+
+    if (isStaticAsset) {
+      headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+    }
+
+    const withCache = new Response(inner.body, {
+      status: inner.status,
+      statusText: inner.statusText,
+      headers,
+    })
+
+    return withSecurityHeaders(withCache, isLocal)
   },
 }
 

@@ -16,6 +16,13 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  // Ensure production builds are fully minified and optimized
+  build: {
+    minify: 'esbuild',
+    sourcemap: false,
+    target: 'es2020',
+    cssMinify: true,
+  },
 })
 
 export default config
