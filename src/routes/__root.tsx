@@ -34,7 +34,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Zera Wallet',
       },
     ],
     links: [
@@ -96,7 +96,7 @@ function NotFound() {
     <div className="flex min-h-[50vh] items-center justify-center p-6">
       <div className="text-center">
         <h1 className="font-pp-machina text-3xl">Not Found</h1>
-        <p className="mt-2 text-muted-foreground">The page you’re looking for doesn’t exist.</p>
+        <p className="mt-2 text-muted-foreground">The page you're looking for doesn't exist.</p>
       </div>
     </div>
   )
