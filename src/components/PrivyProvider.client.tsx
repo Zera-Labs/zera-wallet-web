@@ -72,7 +72,7 @@ function SessionGuard({ children }: { children: React.ReactNode }) {
           cache: 'no-store',
           headers: headerToken ? { Authorization: `Bearer ${headerToken}` } : undefined,
         })
-        if (!cancelled && !res.ok && !handlingRef.current) {
+        if (!cancelled && !handlingRef.current && (res.status === 401 || res.status === 403)) {
           handlingRef.current = true
           try {
             if (authenticated) {

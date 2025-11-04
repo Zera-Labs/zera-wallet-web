@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -35,6 +35,11 @@ export default function TransfersModal({ open, onOpenChange, initialMode = "send
             </div>
           </div>
         </DialogHeader>
+        <DialogDescription className="sr-only">
+          {mode === "send"
+            ? "Send crypto by selecting a token, entering an amount, and a recipient address."
+            : "Receive crypto by selecting a token and using your wallet address or QR code."}
+        </DialogDescription>
         {mode === "send" ? <SendView /> : <ReceiveView />}
       </DialogContent>
     </Dialog>

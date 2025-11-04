@@ -52,43 +52,52 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { location } = useRouterState()
   const isLogin = location.pathname === '/login'
+  // Generate a per-request nonce during SSR so worker can include it in CSP
+  const nonce = typeof window === 'undefined'
+    ? (() => {
+        const bytes = new Uint8Array(16)
+        crypto.getRandomValues(bytes)
+        let str = ''
+        for (const b of bytes) str += String.fromCharCode(b)
+        return typeof btoa === 'function' ? btoa(str) : Array.from(bytes).map((x) => x.toString(16).padStart(2, '0')).join('')
+      })()
+    : undefined
+  const content = isLogin ? children : (
+    <WalletLayout>
+      {children}
+    </WalletLayout>
+  )
+
   const app = (
     <html lang="en">
     <head>
       <HeadContent />
+      {nonce ? <meta name="csp-nonce" content={nonce} /> : null}
     </head>
     <body>
-      {isLogin ? children : (
-        <WalletLayout>
-          {children}
-        </WalletLayout>
-      )}
-      <TanStackDevtools
-        config={{
-          position: 'bottom-right',
-        }}
-        plugins={[
-          {
-            name: 'Tanstack Router',
-            render: <TanStackRouterDevtoolsPanel />,
-          },
-          TanStackQueryDevtools,
-        ]}
-      />
-      <Scripts />
+      <React.Suspense fallback={content}>
+        <LazyPrivyProvider>{content}</LazyPrivyProvider>
+      </React.Suspense>
+      {import.meta.env.DEV ? (
+        <TanStackDevtools
+          config={{
+            position: 'bottom-right',
+          }}
+          plugins={[
+            {
+              name: 'Tanstack Router',
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+            TanStackQueryDevtools,
+          ]}
+        />
+      ) : null}
+      <Scripts {...({ nonce } as any)} />
     </body>
   </html>
   )
 
-  if (typeof window === 'undefined') {
-    return app
-  }
-
-  return (
-    <React.Suspense fallback={app}>
-      <LazyPrivyProvider>{app}</LazyPrivyProvider>
-    </React.Suspense>
-  )
+  return app
 }
 
 function NotFound() {

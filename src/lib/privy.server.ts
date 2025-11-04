@@ -5,8 +5,9 @@ let client: PrivyClient | undefined
 
 export function getPrivyClient() {
   if (!client) {
-    const appId = process.env.PRIVY_APP_ID as string | undefined
-    const appSecret = process.env.PRIVY_APP_SECRET as string | undefined
+    const envAny = (globalThis as any).__ENV__ || {}
+    const appId = (process.env?.PRIVY_APP_ID as string | undefined) ?? (envAny.PRIVY_APP_ID as string | undefined)
+    const appSecret = (process.env?.PRIVY_APP_SECRET as string | undefined) ?? (envAny.PRIVY_APP_SECRET as string | undefined)
     if (!appId || !appSecret) {
       throw new Error('Missing PRIVY_APP_ID/PRIVY_APP_SECRET env vars')
     }
@@ -14,6 +15,11 @@ export function getPrivyClient() {
   }
   return client
 }
+
+type CachedPrivyUser = { user: any; expiresAt: number }
+const USER_CACHE_TTL_MS = 60 * 1000
+const userCacheByIdToken = new Map<string, CachedPrivyUser>()
+const userCacheByUserId = new Map<string, CachedPrivyUser>()
 
 function getCookie(name: string, cookieHeader: string | null): string | undefined {
   if (!cookieHeader) return undefined
@@ -33,9 +39,19 @@ export async function verifyRequestAndGetUser(request: Request) {
   const privy = getPrivyClient()
   const cookieHeader = request.headers.get('cookie') || request.headers.get('Cookie')
   const idToken = getCookie('privy-id-token', cookieHeader) || getCookie('privy_id_token', cookieHeader)
+  const now = Date.now()
   if (idToken) {
+    const cached = userCacheByIdToken.get(idToken)
+    if (cached && cached.expiresAt > now) {
+      return cached.user
+    }
     try {
-      return await privy.getUser({ idToken })
+      const user = await privy.getUser({ idToken })
+      const expiresAt = Date.now() + USER_CACHE_TTL_MS
+      userCacheByIdToken.set(idToken, { user, expiresAt })
+      const uid = (user && (user.id || (user as any).userId || (user as any).user_id)) as string | undefined
+      if (uid) userCacheByUserId.set(uid, { user, expiresAt })
+      return user
     } catch {
       // fall through to header token check
     }
@@ -45,13 +61,30 @@ export async function verifyRequestAndGetUser(request: Request) {
   const auth = request.headers.get('authorization') || request.headers.get('Authorization')
   if (auth?.startsWith('Bearer ')) {
     const token = auth.slice('Bearer '.length)
+    // Check cache in case this bearer token is actually an id token
+    const cachedFromToken = userCacheByIdToken.get(token)
+    if (cachedFromToken && cachedFromToken.expiresAt > now) {
+      return cachedFromToken.user
+    }
     try {
       // Prefer idToken path if a client supplies an id token via header
-      return await privy.getUser({ idToken: token })
+      const user = await privy.getUser({ idToken: token })
+      const expiresAt = Date.now() + USER_CACHE_TTL_MS
+      userCacheByIdToken.set(token, { user, expiresAt })
+      const uid = (user && (user.id || (user as any).userId || (user as any).user_id)) as string | undefined
+      if (uid) userCacheByUserId.set(uid, { user, expiresAt })
+      return user
     } catch {}
     try {
       const { userId } = await privy.verifyAuthToken(token)
-      return await privy.getUserById(userId)
+      const cachedByUid = userCacheByUserId.get(userId)
+      if (cachedByUid && cachedByUid.expiresAt > now) {
+        return cachedByUid.user
+      }
+      const user = await privy.getUserById(userId)
+      const expiresAt = Date.now() + USER_CACHE_TTL_MS
+      userCacheByUserId.set(userId, { user, expiresAt })
+      return user
     } catch {}
   }
 

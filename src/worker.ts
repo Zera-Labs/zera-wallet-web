@@ -1,6 +1,6 @@
 import start from '@tanstack/react-start/server-entry'
 
-function buildContentSecurityPolicy(isLocal: boolean): string {
+function buildContentSecurityPolicy(isLocal: boolean, nonce?: string): string {
   const privyAuth = 'https://auth.privy.io'
   const walletConnectVerify = 'https://verify.walletconnect.com'
   const walletConnectVerifyOrg = 'https://verify.walletconnect.org'
@@ -18,6 +18,7 @@ function buildContentSecurityPolicy(isLocal: boolean): string {
     // App-specific backends that may be contacted from the client
     'https://api.helius.xyz',
     'https://mainnet.helius-rpc.com',
+    'https://api.mainnet-beta.solana.com',
   ]
   if (isLocal) {
     connectSrcParts.push('http://localhost:*', 'ws://localhost:*', 'http://127.0.0.1:*', 'ws://127.0.0.1:*')
@@ -34,6 +35,8 @@ function buildContentSecurityPolicy(isLocal: boolean): string {
   if (isLocal) {
     // Loosen for local dev to allow inline scripts (e.g., framework injections) and eval
     scriptSrcParts.push("'unsafe-inline'", "'unsafe-eval'")
+  } else if (nonce) {
+    scriptSrcParts.push(`'nonce-${nonce}'`, "'strict-dynamic'")
   }
 
   const csp = [
@@ -56,9 +59,9 @@ function buildContentSecurityPolicy(isLocal: boolean): string {
   return csp
 }
 
-function withSecurityHeaders(resp: Response, isLocal: boolean): Response {
+function withSecurityHeaders(resp: Response, isLocal: boolean, nonce?: string): Response {
   const headers = new Headers(resp.headers)
-  const csp = buildContentSecurityPolicy(isLocal)
+  const csp = buildContentSecurityPolicy(isLocal, nonce)
 
   // In local dev, use report-only to avoid breaking flows; enforce in production
   if (isLocal) {
@@ -66,7 +69,7 @@ function withSecurityHeaders(resp: Response, isLocal: boolean): Response {
     headers.delete('Content-Security-Policy')
   } else {
     headers.set('Content-Security-Policy', csp)
-    headers.set('Content-Security-Policy-Report-Only', csp)
+    headers.delete('Content-Security-Policy-Report-Only')
   }
 
   // Additional hardening headers
@@ -90,6 +93,8 @@ const entry: any = start as any
 
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {
+    // Expose Worker env to server modules that read from process.env
+    ;(globalThis as any).__ENV__ = env
     const inner: Response =
       typeof entry === 'function' ? await entry(request, env, ctx) : await entry.fetch(request, env, ctx)
 
@@ -114,6 +119,44 @@ export default {
 
     if (isStaticAsset) {
       headers.set('Cache-Control', 'public, max-age=31536000, immutable')
+      const withCache = new Response(inner.body, {
+        status: inner.status,
+        statusText: inner.statusText,
+        headers,
+      })
+      return withSecurityHeaders(withCache, isLocal)
+    }
+
+    // If this is an HTML response, try to extract a CSP nonce from a meta tag
+    const contentType = inner.headers.get('Content-Type') || ''
+    if (contentType.includes('text/html')) {
+      const html = await inner.text()
+      let nonce = (html.match(/<meta[^>]+name=["']csp-nonce["'][^>]*content=["']([^"']+)["']/i) || [])[1]
+      if (!nonce) {
+        const bytes = new Uint8Array(16)
+        crypto.getRandomValues(bytes)
+        let raw = ''
+        for (const b of bytes) raw += String.fromCharCode(b)
+        nonce = btoa(raw)
+      }
+
+      // Ensure meta tag exists and add nonce to all <script> tags lacking a nonce
+      let updatedHtml = html
+      if (!/<meta[^>]+name=["']csp-nonce["']/i.test(updatedHtml)) {
+        updatedHtml = updatedHtml.replace(
+          /<head(\b[^>]*)>/i,
+          `<head$1><meta name="csp-nonce" content="${nonce}">`
+        )
+      }
+      // Add nonce to any <script> without existing nonce
+      updatedHtml = updatedHtml.replace(/<script(?![^>]*\bnonce=)/gi, `<script nonce="${nonce}"`)
+
+      const withCache = new Response(updatedHtml, {
+        status: inner.status,
+        statusText: inner.statusText,
+        headers,
+      })
+      return withSecurityHeaders(withCache, isLocal, nonce)
     }
 
     const withCache = new Response(inner.body, {

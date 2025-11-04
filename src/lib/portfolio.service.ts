@@ -2,7 +2,16 @@ import type { Portfolio, Holding } from '@/lib/portfolio'
 import { Address, Commitment, createSolanaRpc } from '@solana/kit'
 
 // Thin abstraction to prepare for swapping in real APIs/websockets later.
-const rpc = createSolanaRpc('https://api.mainnet-beta.solana.com')
+function getEnvVar(name: string): string | undefined {
+  const envAny = (globalThis as any).__ENV__ || {}
+  return (process.env?.[name] as string | undefined) ?? (envAny?.[name] as string | undefined)
+}
+
+const heliusKey = getEnvVar('HELIUS_API_KEY')
+const rpcUrl = heliusKey
+  ? `https://mainnet.helius-rpc.com/?api-key=${encodeURIComponent(heliusKey)}`
+  : 'https://api.mainnet-beta.solana.com'
+const rpc = createSolanaRpc(rpcUrl)
 
 async function fetchSolBalance(address: string): Promise<{ amount: number; priceUsd: number }> {
   const { value } = await rpc
