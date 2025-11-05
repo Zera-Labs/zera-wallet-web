@@ -66,7 +66,6 @@ export function TransactionsTable({ rows }: { rows: TxRow[] }) {
           rows.map((r) => {
             const sent = r.type === 'sent'
             const statusLabel = (r.status ?? 'finalized').replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase())
-            const truncatedDisplay = truncateMiddle(r.amountDisplay, 18)
             return (
               <TableRow key={r.key}>
                 <TableCell>
@@ -82,18 +81,29 @@ export function TransactionsTable({ rows }: { rows: TxRow[] }) {
                     <div className={sent ? 'text-red-300' : 'text-green-300'}>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-help">
-                            {sent ? '-' : '+'}{truncatedDisplay} {r.symbol}
+                          <span
+                            className="cursor-help block truncate"
+                          >
+                            {sent ? '-' : '+'}{r.amountDisplay} {r.symbol}
                           </span>
                         </TooltipTrigger>
-                        {r.amountDisplay && r.amountDisplay.length > truncatedDisplay.length && (
-                          <TooltipContent sideOffset={6}>{r.amountDisplay} {r.symbol}</TooltipContent>
-                        )}
+                        <TooltipContent sideOffset={6}>{r.amountDisplay} {r.symbol}</TooltipContent>
                       </Tooltip>
                     </div>
-                    <div className="text-[13px] text-[var(--text-tertiary)]">
-                      {shortAddress(r.counterparty)}
-                    </div>
+                    {r.counterparty ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="text-[13px] text-[var(--text-tertiary)] cursor-help font-mono">
+                            {shortAddress(r.counterparty)}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent sideOffset={6}>
+                          {r.counterparty}
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <div className="text-[13px] text-[var(--text-tertiary)]">{shortAddress(r.counterparty)}</div>
+                    )}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -127,15 +137,22 @@ export function TransactionsTable({ rows }: { rows: TxRow[] }) {
                 </TableCell>
                 <TableCell>{formatDate(r.createdAt)}</TableCell>
                 <TableCell className="font-mono text-[13px] opacity-80">
-                  <a
-                    href={`https://solscan.io/tx/${r.signature}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline inline-flex items-center gap-1"
-                  >
-                    {r.signature.slice(0, 10)}…
-                    <ExternalLink className="size-3.5 opacity-80" aria-hidden="true" />
-                  </a>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href={`https://solscan.io/tx/${r.signature}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline inline-flex items-center gap-1"
+                      >
+                        {r.signature.slice(0, 10)}…
+                        <ExternalLink className="size-3.5 opacity-80" aria-hidden="true" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent sideOffset={6} className="font-mono break-all">
+                      {r.signature}
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             )
