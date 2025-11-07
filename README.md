@@ -1,5 +1,14 @@
 Welcome to your new TanStack app! 
 
+## Project Status
+
+This is a WIP, browser-based crypto wallet. The backend services and the zero-knowledge components that will power private transactions are still being developed. The current app focuses on the frontend experience and integration scaffolding. This project is not production-ready.
+
+## Overview
+
+- Built with TanStack Start, TanStack Router, TanStack Query, Tailwind CSS, Shadcn UI, Vite, Cloudflare Workers, Wrangler, and TypeScript.
+- Designed to run entirely in the browser; server capabilities and ZK features will arrive incrementally.
+
 # Getting Started
 
 To run this application:
@@ -15,18 +24,10 @@ To build this application for production:
 
 ```bash
 pnpm build
-pnpm serve
-OR
 npx wrangler dev
 ```
 
-## Testing
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-pnpm test
-```
 
 ## Styling
 
