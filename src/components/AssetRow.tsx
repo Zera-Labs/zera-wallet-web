@@ -41,13 +41,19 @@ export default function AssetRow({ asset, onOpen }: { asset: AssetRowData; onOpe
         {(() => {
           const src = assetImg?.image || resolveIconSrc(name)
           return src ? (
+          <div className={`relative shrink-0 size-11 rounded-full border ${borderColor} overflow-hidden bg-[var(--brand-light-dark-green)]`}>
             <img
               src={src}
               alt={`${name} logo`}
-              className={`size-11 rounded-full border ${borderColor} object-cover`}
+              loading="lazy"
+              decoding="async"
+              width={44}
+              height={44}
+              className="absolute inset-0 w-full h-full object-cover object-center"
             />
+          </div>
           ) : (
-            <div className="size-11 rounded-full bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)] grid place-items-center text-[var(--brand-green-50)]">
+          <div className="shrink-0 size-11 rounded-full bg-[var(--brand-light-dark-green)] border border-[var(--brand-light-green)] grid place-items-center text-[var(--brand-green-50)]">
               <CircleHelp className="size-5 opacity-80" />
             </div>
           )
