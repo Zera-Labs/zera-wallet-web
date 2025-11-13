@@ -92,5 +92,6 @@
   },
   "prisma": {
     "seed": "ts-node seed.ts"
-  }
+  },
+  "version": "1.0.0"
 }
