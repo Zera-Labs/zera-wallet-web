@@ -15,7 +15,7 @@ module.exports = {
       }],
       ['@semantic-release/exec', {
         // This runs before the git commit, with the next version
-        prepareCmd: 'node .versioning/prepare.js ${nextRelease.version}'
+        prepareCmd: 'node .versioning/prepare.cjs ${nextRelease.version}'
       }],
       ['@semantic-release/git', {
         assets: [
