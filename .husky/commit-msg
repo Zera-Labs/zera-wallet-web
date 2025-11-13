@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+npx --no-install commitlint --edit "$1" || {
+  echo ""
+  echo "WOOF! WOOF! WOOF!"
+  echo "⛔ Commit message must follow Conventional Commits."
+  echo "   Use one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+  echo ""
+  echo "   Examples:"
+  echo "     feat: add wallet connect button"
+  echo "     fix: handle empty wallet address error"
+  echo "     feat!: remove legacy auth"
+  echo "     BREAKING CHANGE: old /v1 endpoints removed"
+  exit 1
+}
