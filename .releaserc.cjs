@@ -2,7 +2,10 @@ module.exports = {
     branches: ['main'],
     plugins: [
       ['@semantic-release/commit-analyzer', {
-        preset: 'conventionalcommits'
+        preset: 'conventionalcommits',
+        releaseRules: [
+          { type: 'tweak', release: 'patch' }
+        ]
       }],
       ['@semantic-release/release-notes-generator', {
         preset: 'conventionalcommits'
