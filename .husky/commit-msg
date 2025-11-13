@@ -3,7 +3,7 @@
 
 npx --no-install commitlint --edit "$1" || {
   echo ""
-  echo "WOOF! WOOF! WOOF!"
+  echo "🐶 WOOF! WOOF! WOOF! 🐶"
   echo "Naughty dog, no commit biscuit for you!"
   echo "⛔ Commit message must follow Conventional Commits."
   echo "   Use one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
@@ -13,7 +13,7 @@ npx --no-install commitlint --edit "$1" || {
   echo "     fix: handle empty wallet address error"
   echo "     feat!: remove legacy auth"
   echo "     BREAKING CHANGE: old /v1 endpoints removed"
-  echo "Everything in lowercase, puppy."
-  echo "🐶"
+  echo '  Everything in lowercase, puppy ~~~~'
+  echo "🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶"
   exit 1
 }
