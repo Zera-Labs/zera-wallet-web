@@ -26,8 +26,36 @@ To build this application for production:
 pnpm build
 npx wrangler dev
 ```
+## Semantic Versioning
 
+This project uses [semantic versioning](https://semver.org/) for versioning. The version is stored in the `VERSION` file. The history of versions is stored in the `.versioning/history.json` file. The version is updated in the `package.json` file. The version is updated in the `VERSION` file. The version is updated in the `.versioning/history.json` file. The version is updated in the `package.json` file.
 
+To release a new version, prepend the commit message with one of the following:
+
+```bash
+'feat: ' for new features (MINOR bump)
+'fix: ' for bug fixes (PATCH bump)
+'docs: ' for documentation changes (no bump)
+'style: ' for styling changes (no bump)
+'refactor: ' for code refactoring (no bump)
+'perf: ' for performance improvements (no bump)
+'test: ' for test changes (no bump)
+'build: ' for build changes (no bump)
+'ci: ' for continuous integration changes (no bump)
+'chore: ' for chore changes (no bump)
+'revert: ' for reverts (no bump)
+'tweak: ' for small changes (PATCH bump)
+'BREAKING CHANGE: ' for breaking changes (MAJOR bump)
+```
+
+Example commit message:
+
+```bash
+feat: add wallet connect button
+```
+(make sure to use lowercase for your message)
+
+This will trigger a new release to the `main` branch via GitHub Actions.
 
 ## Styling
 
