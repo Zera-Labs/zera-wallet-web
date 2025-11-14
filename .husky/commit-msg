@@ -3,10 +3,19 @@
 
 npx --no-install commitlint --edit "$1" || {
   echo ""
+  echo "Your commit message:"
+  echo "----------------------------------------"
+  if [ -f "$1" ]; then
+    sed '/^[[:space:]]*#/d' "$1" | sed '/^[[:space:]]*$/d'
+  else
+    echo "(message file not found)"
+  fi
+  echo "----------------------------------------"
+  echo ""
   echo "🐶 WOOF! WOOF! WOOF! 🐶"
   echo "Naughty dog, no commit biscuit for you!"
   echo "⛔ Commit message must follow Conventional Commits."
-  echo "   Use one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+  echo "   Use one of: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert, tweak"
   echo ""
   echo "   Examples:"
   echo "     feat: add wallet connect button"
